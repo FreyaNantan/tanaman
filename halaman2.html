@@ -133,7 +133,6 @@
     <div id="hasilTakaran" class="hasil" style="display:none;"></div>
   </div>
 
-  <!-- 💬 Komentar Pengunjung -->
   <h2>💬 Komentar Pengunjung</h2>
   <form onsubmit="tampilkanKomentar(); return false;" style="max-width: 600px; margin: 20px auto;">
     <input type="text" id="nama" placeholder="Nama Anda" required>
@@ -145,7 +144,6 @@
 
   <div id="daftarKomentar"></div>
 
-  <!-- 🔙 Tombol kembali ke halaman utama -->
   <br><br>
   <a href="index.html">
     <button style="padding: 10px 20px; font-size: 16px; border-radius: 8px; background-color: #9bd1ff; border: none;">
@@ -153,7 +151,6 @@
     </button>
   </a>
 
-  <!-- SCRIPT -->
   <script>
     function tampilkanTakaran() {
       const tanaman = document.getElementById("jenisTanaman").value;
@@ -167,11 +164,11 @@
 
       const gambarTanamanMap = {
         cabai: "tanaman_cabai.jpg",
-        tomat: "gambar/tanaman_tomat.jpg",
-        kangkung: "gambar/tanaman_kangkung.jpg",
-        mentimun: "gambar/tanaman_mentimun.jpg",
-        jagung: "gambar/tanaman_jagung.jpg",
-        terong: "gambar/tanaman_terong.jpg"
+        tomat: "tanaman_tomat.jpg",
+        kangkung: "tanaman_kangkung.jpg",
+        mentimun: "tanaman_mentimun.jpg",
+        jagung: "tanaman_jagung.jpg",
+        terong: "tanaman_terong.jpg"
       };
 
       let gambarPupuk = "";
@@ -179,11 +176,11 @@
       let namaPupuk = "";
 
       if (pupuk === "organik") {
-        gambarPupuk = "gambar/pupuk_organik.jpg";
+        gambarPupuk = "pupuk_organik.jpg";
         takaran = "Gunakan pupuk organik setiap 5–10 hari.";
         namaPupuk = "Kompos, Pupuk Kandang, POC";
       } else {
-        gambarPupuk = "gambar/pupuk_kimia.jpg";
+        gambarPupuk = "pupuk_kimia.jpg";
         takaran = "Gunakan pupuk kimia (NPK/Urea) setiap 7–10 hari.";
         namaPupuk = "NPK, Urea, KCl";
       }
