@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Penanaman dengan Pupuk</title>
+  <style>
+    body {
+      background-color: #e0f0ff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #b0d4ff;
+      padding: 30px 20px;
+    }
+
+    video {
+      width: 90%;
+      max-width: 600px;
+      border-radius: 10px;
+    }
+
+    .simulasi {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      margin-top: 30px;
+      border: 2px solid #a7d7f9;
+    }
+
+    .hasil {
+      background-color: #e3f7ff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      color: #1e4f66;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    }
+
+    .hasil img {
+      width: 150px;
+      margin: 10px;
+      border-radius: 10px;
+    }
+
+    select {
+      max-width: 500px;
+      padding: 10px;
+      margin: 10px auto;
+      display: block;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    form input, form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #daftarKomentar {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    #daftarKomentar div {
+      text-align: left;
+      margin-bottom: 15px;
+      background: #fff;
+      padding: 10px 15px;
+      border-radius: 10px;
+    }
+
+    #daftarKomentar hr {
+      border: 0;
+      height: 1px;
+      background: #ddd;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Video Penanaman dengan Pupuk</h1>
+  </header>
+
+  <p>Video ini menunjukkan cara menanam tumbuhan dengan pupuk alami agar hasilnya optimal.</p>
+
+  <video controls>
+    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    Browser kamu tidak mendukung video.
+  </video>
+
+  <h2>📘 Penjelasan Penggunaan Pupuk</h2>
+  <ul>
+    <li>Berikan pupuk setiap 7 hari sekali.</li>
+    <li>Gunakan pupuk cair, encerkan 1 bagian pupuk + 10 bagian air.</li>
+    <li>Siramkan ke tanah sekitar akar, bukan ke daun.</li>
+  </ul>
+
+  <div class="simulasi">
+    <h3>🧪 Simulasi Takaran Pupuk</h3>
+
+    <select id="jenisTanaman" onchange="tampilkanTakaran()">
+      <option value="">-- Pilih Tanaman --</option>
+      <option value="cabai">🌶 Cabai</option>
+      <option value="tomat">🍅 Tomat</option>
+      <option value="kangkung">🥬 Kangkung</option>
+      <option value="mentimun">🥒 Mentimun</option>
+      <option value="jagung">🌽 Jagung</option>
+      <option value="terong">🍆 Terong</option>
+    </select>
+
+    <select id="jenisPupuk" onchange="tampilkanTakaran()">
+      <option value="">-- Pilih Pupuk --</option>
+      <option value="organik">🌿 Organik</option>
+      <option value="kimia">🧪 Kimia</option>
+    </select>
+
+    <div id="hasilTakaran" class="hasil" style="display:none;"></div>
+  </div>
+
+  <!-- 💬 Komentar Pengunjung -->
+  <h2>💬 Komentar Pengunjung</h2>
+  <form onsubmit="tampilkanKomentar(); return false;" style="max-width: 600px; margin: 20px auto;">
+    <input type="text" id="nama" placeholder="Nama Anda" required>
+    <textarea id="pesan" placeholder="Tulis komentar Anda di sini..." rows="4" required></textarea>
+    <button type="submit" style="padding: 10px 20px; background-color: #8ecaff; border: none; border-radius: 8px;">
+      Kirim Komentar
+    </button>
+  </form>
+
+  <div id="daftarKomentar"></div>
+
+  <!-- 🔙 Tombol kembali ke halaman utama -->
+  <br><br>
+  <a href="index.html">
+    <button style="padding: 10px 20px; font-size: 16px; border-radius: 8px; background-color: #9bd1ff; border: none;">
+      ⬅️ Kembali ke Halaman 1
+    </button>
+  </a>
+
+  <!-- SCRIPT -->
+  <script>
+    function tampilkanTakaran() {
+      const tanaman = document.getElementById("jenisTanaman").value;
+      const pupuk = document.getElementById("jenisPupuk").value;
+      const hasil = document.getElementById("hasilTakaran");
+
+      if (!tanaman || !pupuk) {
+        hasil.style.display = "none";
+        return;
+      }
+
+      const gambarTanamanMap = {
+        cabai: "gambar/tanaman_cabai.jpg",
+        tomat: "gambar/tanaman_tomat.jpg",
+        kangkung: "gambar/tanaman_kangkung.jpg",
+        mentimun: "gambar/tanaman_mentimun.jpg",
+        jagung: "gambar/tanaman_jagung.jpg",
+        terong: "gambar/tanaman_terong.jpg"
+      };
+
+      let gambarPupuk = "";
+      let takaran = "";
+      let namaPupuk = "";
+
+      if (pupuk === "organik") {
+        gambarPupuk = "gambar/pupuk_organik.jpg";
+        takaran = "Gunakan pupuk organik setiap 5–10 hari.";
+        namaPupuk = "Kompos, Pupuk Kandang, POC";
+      } else {
+        gambarPupuk = "gambar/pupuk_kimia.jpg";
+        takaran = "Gunakan pupuk kimia (NPK/Urea) setiap 7–10 hari.";
+        namaPupuk = "NPK, Urea, KCl";
+      }
+
+      hasil.innerHTML = `
+        <p><strong>Takaran:</strong><br>${takaran}</p>
+        <p><strong>Nama Pupuk:</strong><br>${namaPupuk}</p>
+        <img src="${gambarPupuk}" alt="Pupuk">
+        <img src="${gambarTanamanMap[tanaman]}" alt="Tanaman">
+      `;
+      hasil.style.display = "block";
+    }
+
+    function tampilkanKomentar() {
+      const nama = document.getElementById('nama').value.trim();
+      const pesan = document.getElementById('pesan').value.trim();
+      const kotak = document.getElementById('daftarKomentar');
+
+      if (nama && pesan) {
+        kotak.innerHTML += `
+          <div>
+            <strong>${nama}</strong><br>
+            <p style="margin-top:5px;">${pesan}</p>
+            <hr>
+          </div>
+        `;
+      }
+
+      document.getElementById('nama').value = "";
+      document.getElementById('pesan').value = "";
+    }
+  </script>
+
+</body>
+</html>
