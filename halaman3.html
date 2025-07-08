@@ -30,7 +30,7 @@
     }
 
     .chat-log {
-      height: 300px;
+      height: 320px;
       overflow-y: auto;
       background: #f7f7f7;
       padding: 10px;
@@ -38,11 +38,29 @@
       margin-bottom: 20px;
     }
 
-    .chat-log p {
+    .pesan {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 10px;
       background: #e1f5fe;
       padding: 10px;
-      border-radius: 8px;
-      margin: 5px 0;
+      border-radius: 10px;
+    }
+
+    .pesan img {
+      width: 36px;
+      height: 36px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+
+    .isi-pesan {
+      flex-grow: 1;
+    }
+
+    .isi-pesan small {
+      color: #555;
+      font-size: 12px;
     }
 
     input, button {
@@ -93,12 +111,14 @@
     </a>
   </div>
 
-  <!-- Firebase JS SDK (tanpa module) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+  <!-- 🔔 Suara notifikasi -->
+  <audio id="notifSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3" preload="auto"></audio>
+
   <script>
-    // Konfigurasi Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAR7Gck3aerU7XErxetQp3KgsMYFGqn5Zo",
       authDomain: "grup-obrolan-penanaman.firebaseapp.com",
@@ -117,18 +137,37 @@
       const nama = document.getElementById("username").value.trim();
       const teks = document.getElementById("message").value.trim();
       if (nama && teks) {
-        chatRef.push({ nama: nama, teks: teks });
+        const waktu = new Date().toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+        chatRef.push({ nama, teks, waktu });
         document.getElementById("message").value = "";
       }
     }
 
     const chatLog = document.getElementById("chatLog");
+    const notif = document.getElementById("notifSound");
+
     chatRef.on("child_added", (snapshot) => {
       const pesan = snapshot.val();
-      const elemen = document.createElement("p");
-      elemen.innerHTML = `<strong>${pesan.nama}:</strong> ${pesan.teks}`;
+
+      // Hapus "Memuat pesan..." jika ada
+      if (chatLog.children[0] && chatLog.children[0].innerText.includes("Memuat pesan")) {
+        chatLog.innerHTML = "";
+      }
+
+      const elemen = document.createElement("div");
+      elemen.className = "pesan";
+      elemen.innerHTML = `
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User">
+        <div class="isi-pesan">
+          <strong>${pesan.nama}</strong><br>
+          ${pesan.teks}<br>
+          <small>🕒 ${pesan.waktu || "Baru saja"}</small>
+        </div>
+      `;
       chatLog.appendChild(elemen);
       chatLog.scrollTop = chatLog.scrollHeight;
+
+      notif.play(); // 🔔 Mainkan suara saat pesan masuk
     });
   </script>
 
