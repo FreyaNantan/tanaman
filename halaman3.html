@@ -99,7 +99,7 @@
       <p><em>Memuat pesan...</em></p>
     </div>
 
-    <input type="text" id="username" placeholder="Nama Anda" />
+    <input type="text" id="username" placeholder="Nama Anda | URL Foto (opsional)" />
     <input type="text" id="message" placeholder="Tulis pesan..." />
     <button onclick="kirimPesan()">Kirim</button>
   </div>
@@ -134,11 +134,18 @@
     const chatRef = database.ref("pesan");
 
     function kirimPesan() {
-      const nama = document.getElementById("username").value.trim();
+      const namaInput = document.getElementById("username").value.trim();
       const teks = document.getElementById("message").value.trim();
-      if (nama && teks) {
+
+      if (namaInput && teks) {
         const waktu = new Date().toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
-        chatRef.push({ nama, teks, waktu });
+
+        let [nama, foto] = namaInput.split("|");
+        if (!foto) {
+          foto = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        }
+
+        chatRef.push({ nama, foto, teks, waktu });
         document.getElementById("message").value = "";
       }
     }
@@ -149,7 +156,6 @@
     chatRef.on("child_added", (snapshot) => {
       const pesan = snapshot.val();
 
-      // Hapus "Memuat pesan..." jika ada
       if (chatLog.children[0] && chatLog.children[0].innerText.includes("Memuat pesan")) {
         chatLog.innerHTML = "";
       }
@@ -157,7 +163,7 @@
       const elemen = document.createElement("div");
       elemen.className = "pesan";
       elemen.innerHTML = `
-        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User">
+        <img src="${pesan.foto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" alt="User">
         <div class="isi-pesan">
           <strong>${pesan.nama}</strong><br>
           ${pesan.teks}<br>
@@ -166,8 +172,7 @@
       `;
       chatLog.appendChild(elemen);
       chatLog.scrollTop = chatLog.scrollHeight;
-
-      notif.play(); // 🔔 Mainkan suara saat pesan masuk
+      notif.play();
     });
   </script>
 
