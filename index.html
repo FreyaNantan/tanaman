@@ -2,82 +2,98 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Infografis: Cara Menanam Tumbuhan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Penanaman</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      background-color: #e0f0ff;
-      font-family: Arial, sans-serif;
-      text-align: center;
       margin: 0;
-      padding: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background-color: #e0f0ff;
+      text-align: center;
     }
 
     header {
       background-color: #b0d4ff;
-      padding: 30px 20px;
+      padding: 20px;
+      border-radius: 10px;
     }
 
     header h1 {
-      font-size: 32px;
+      font-size: 6vw;
       margin: 0;
-      color: #222;
     }
 
-    .container {
+    .infografis {
+      margin: 30px auto;
+      max-width: 800px;
+      background-color: #ffffff;
       padding: 20px;
-    }
-
-    img {
-      max-width: 90%;
-      height: auto;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    .next {
-      margin: 30px 0;
+    .infografis img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+      border-radius: 10px;
     }
 
-    .next a {
-      background: #4caf50;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
+    .menu {
+      margin-top: 30px;
+    }
+
+    .menu a button {
+      padding: 15px 25px;
       font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      background-color: #8ecaff;
+      color: #000;
+      cursor: pointer;
+      margin: 10px;
+      transition: background-color 0.3s;
     }
 
-    .next a:hover {
-      background: #45a049;
+    .menu a button:hover {
+      background-color: #74b9ff;
     }
 
-    footer {
-      margin-top: 40px;
-      font-size: 14px;
-      color: #444;
-      padding: 20px;
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 8vw;
+      }
+
+      .menu a button {
+        width: 90%;
+        font-size: 5vw;
+      }
+
+      body {
+        padding: 15px;
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Infografis: Cara Menanam Tumbuhan</h1>
+    <h1>Website Edukasi Penanaman</h1>
   </header>
 
-  <div class="container">
-    <img src="infografis-tanam.png" alt="Infografis Menanam Tumbuhan">
+  <div class="infografis">
+    <img src="https://i.imgur.com/W7Q3zHE.jpg" alt="Infografis Penanaman">
+    <p><strong>Pelajari cara menanam tumbuhan yang baik dan benar, serta penggunaan pupuk alami dan kimia.</strong></p>
   </div>
 
-  <!-- Tombol Lanjut ke Halaman 2 -->
-  <div class="next">
-    <p><strong>➡️ Klik untuk melihat video penanaman dengan pupuk</strong></p>
-    <a href="halaman2.html">Lanjut</a>
+  <div class="menu">
+    <a href="halaman2.html"><button>🌱 Lanjut ke Video & Simulasi</button></a>
   </div>
-
-  <footer>
-    &copy; 2025 - Dibuat oleh Freiya | Edukasi Tanaman 🌿
-  </footer>
 
 </body>
 </html>
