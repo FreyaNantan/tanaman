@@ -1,82 +1,65 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Website Penanaman</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Edukasi Penanaman</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      margin: 0;
-      padding: 20px;
+      background-color: #dff0ff;
       font-family: Arial, sans-serif;
-      background-color: #e0f0ff;
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
 
     header {
-      background-color: #b0d4ff;
-      padding: 20px;
-      border-radius: 10px;
+      background-color: #a6d4ff;
+      padding: 30px 10px;
     }
 
     header h1 {
-      font-size: 6vw;
+      font-size: 2.2em;
       margin: 0;
     }
 
-    .infografis {
-      margin: 30px auto;
+    .konten {
       max-width: 800px;
-      background-color: #ffffff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    .infografis img {
-      max-width: 100%;
-      height: auto;
-      margin-bottom: 20px;
+      margin: 30px auto;
+      background-color: white;
       border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .menu {
+    .konten img {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .konten p {
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    .tombol-lanjut {
       margin-top: 30px;
     }
 
-    .menu a button {
+    .tombol-lanjut a button {
+      background-color: #8bd3ff;
+      color: #003344;
       padding: 15px 25px;
       font-size: 16px;
-      border-radius: 10px;
       border: none;
-      background-color: #8ecaff;
-      color: #000;
+      border-radius: 8px;
       cursor: pointer;
-      margin: 10px;
-      transition: background-color 0.3s;
     }
 
-    .menu a button:hover {
-      background-color: #74b9ff;
-    }
-
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 8vw;
-      }
-
-      .menu a button {
-        width: 90%;
-        font-size: 5vw;
-      }
-
-      body {
-        padding: 15px;
-      }
+    .tombol-lanjut a button:hover {
+      background-color: #6cc9ff;
     }
   </style>
 </head>
@@ -86,13 +69,20 @@
     <h1>Website Edukasi Penanaman</h1>
   </header>
 
-  <div class="infografis">
-    <img src="https://i.imgur.com/W7Q3zHE.jpg" alt="Infografis Penanaman">
-    <p><strong>Pelajari cara menanam tumbuhan yang baik dan benar, serta penggunaan pupuk alami dan kimia.</strong></p>
-  </div>
+  <div class="konten">
+    <!-- ✅ Gambar lokal dari GitHub -->
+    <img src="infografis-tanam.png" alt="Infografis Penanaman" />
 
-  <div class="menu">
-    <a href="halaman2.html"><button>🌱 Lanjut ke Video & Simulasi</button></a>
+    <p>
+      Pelajari cara menanam tumbuhan yang baik dan benar, serta penggunaan pupuk alami dan kimia.
+    </p>
+
+    <!-- ✅ Tombol ke halaman video -->
+    <div class="tombol-lanjut">
+      <a href="halaman2.html">
+        <button>🌱 Lanjut ke Video & Simulasi</button>
+      </a>
+    </div>
   </div>
 
 </body>
