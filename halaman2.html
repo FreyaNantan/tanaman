@@ -9,17 +9,40 @@
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
+      margin: 0;
     }
 
     header {
       background-color: #b0d4ff;
-      padding: 30px 20px;
+      padding: 20px 10px;
     }
 
     video {
-      width: 90%;
+      width: 100%;
       max-width: 600px;
       border-radius: 10px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 20px 0 10px;
+    }
+
+    h3 {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    ul {
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto 20px;
+      font-size: 16px;
     }
 
     .simulasi {
@@ -27,8 +50,9 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 12px rgba(0,0,0,0.1);
-      margin-top: 30px;
+      margin: 30px auto;
       border: 2px solid #a7d7f9;
+      max-width: 600px;
     }
 
     .hasil {
@@ -41,31 +65,45 @@
     }
 
     .hasil img {
-      width: 150px;
+      width: 100px;
       margin: 10px;
       border-radius: 10px;
     }
 
     select {
-      max-width: 500px;
+      width: 90%;
+      max-width: 400px;
       padding: 10px;
       margin: 10px auto;
       display: block;
       border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 16px;
     }
 
     button {
-      cursor: pointer;
-    }
-
-    /* Tombol kembali */
-    .kembali-btn {
       padding: 10px 20px;
       font-size: 16px;
       border-radius: 8px;
-      background-color: #9bd1ff;
+      cursor: pointer;
       border: none;
+      background-color: #9bd1ff;
+    }
+
+    @media (max-width: 500px) {
+      h1, h2, h3 {
+        font-size: 18px;
+      }
+      ul {
+        font-size: 15px;
+        padding-left: 20px;
+      }
+      .simulasi {
+        padding: 15px;
+      }
+      select {
+        font-size: 15px;
+      }
     }
   </style>
 </head>
@@ -111,25 +149,13 @@
     <div id="hasilTakaran" class="hasil" style="display:none;"></div>
   </div>
 
+  <!-- 💬 Komentar Disqus -->
   <h2>💬 Komentar Pengunjung</h2>
-  <div id="disqus_thread"></div>
-  <script>
-    var disqus_config = function () {
-      this.page.url = window.location.href;
-      this.page.identifier = "halaman2";
-    };
-    (function() {
-      var d = document, s = d.createElement('script');
-      s.src = 'https://penanaman-nantan.disqus.com/embed.js';
-      s.setAttribute('data-timestamp', +new Date());
-      (d.head || d.body).appendChild(s);
-    })();
-  </script>
-  <noscript>Silakan aktifkan JavaScript untuk melihat komentar.</noscript>
+  <div id="disqus_thread" style="margin: 0 auto; max-width: 600px;"></div>
 
   <br><br>
   <a href="index.html">
-    <button class="kembali-btn">⬅️ Kembali ke Halaman 1</button>
+    <button>⬅️ Kembali ke Halaman 1</button>
   </a>
 
   <script>
@@ -143,25 +169,13 @@
         return;
       }
 
-      const gambarTanamanMap = {
-        cabai: "tanaman_cabai.jpg",
-        tomat: "tanaman_tomat.jpg",
-        kangkung: "tanaman_kangkung.jpg",
-        mentimun: "tanaman_mentimun.jpg",
-        jagung: "tanaman_jagung.jpg",
-        terong: "tanaman_terong.jpg"
-      };
-
-      let gambarPupuk = "";
       let takaran = "";
       let namaPupuk = "";
 
       if (pupuk === "organik") {
-        gambarPupuk = "pupuk_organik.jpg";
         takaran = "Gunakan pupuk organik setiap 5–10 hari.";
         namaPupuk = "Kompos, Pupuk Kandang, POC";
       } else {
-        gambarPupuk = "pupuk_kimia.jpg";
         takaran = "Gunakan pupuk kimia (NPK/Urea) setiap 7–10 hari.";
         namaPupuk = "NPK, Urea, KCl";
       }
@@ -169,11 +183,23 @@
       hasil.innerHTML = `
         <p><strong>Takaran:</strong><br>${takaran}</p>
         <p><strong>Nama Pupuk:</strong><br>${namaPupuk}</p>
-        <img src="${gambarPupuk}" alt="Pupuk">
-        <img src="${gambarTanamanMap[tanaman]}" alt="Tanaman">
       `;
       hasil.style.display = "block";
     }
+  </script>
+
+  <!-- Disqus Embed -->
+  <script>
+    var disqus_config = function () {
+      this.page.url = 'https://freyanantan.github.io/tanaman/halaman2.html';
+      this.page.identifier = 'halaman2-komentar';
+    };
+    (function() {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://penanaman-nantan.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
   </script>
 
 </body>
