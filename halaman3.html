@@ -1,70 +1,81 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grup Chat Penanaman</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ruang Bisnis & Grup Perkumpulan</title>
   <style>
     body {
-      background-color: #e6f2ff;
       font-family: Arial, sans-serif;
+      background-color: #e6f7ff;
+      margin: 0;
+      padding: 0;
       text-align: center;
-      padding: 20px;
     }
 
     header {
-      background-color: #aad4ff;
+      background-color: #93d4ff;
       padding: 20px;
-      border-radius: 10px;
     }
 
-    h1 {
+    header h1 {
+      font-size: 26px;
       margin: 0;
+      color: #00334d;
+    }
+
+    main {
+      padding: 30px 20px;
     }
 
     p {
       font-size: 18px;
-      margin-top: 10px;
+      margin-bottom: 25px;
     }
 
-    .kembali {
-      margin-top: 30px;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #79cfff;
+    a button {
+      padding: 12px 24px;
+      background-color: #5ebfff;
+      color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
+      font-size: 16px;
       cursor: pointer;
+    }
+
+    a button:hover {
+      background-color: #3daae0;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>💬 Grup Chat Penanaman</h1>
-    <p>Tempat berbagi pengalaman dan tanya jawab seputar tanaman dan pupuk.</p>
+    <h1>💬 Ruang Bisnis & Grup Perkumpulan</h1>
   </header>
 
-  <!-- Tawk.to Live Chat -->
-  <script type="text/javascript">
-    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-    (function() {
-      var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-      s1.async = true;
-      s1.src = 'https://embed.tawk.to/YOUR_ID_HERE/1xyz';  // Ganti YOUR_ID_HERE dengan ID dari tawk.to
-      s1.charset = 'UTF-8';
-      s1.setAttribute('crossorigin', '*');
-      s0.parentNode.insertBefore(s1, s0);
-    })();
-  </script>
+  <main>
+    <p>Silakan berdiskusi bersama pengunjung lain mengenai penanaman, bisnis tanaman, dan berbagai pertanyaan lainnya.</p>
 
-  <div class="kembali">
-    <a href="index.html"><button>⬅️ Kembali ke Halaman Utama</button></a>
-  </div>
+    <a href="halaman2.html">
+      <button>⬅️ Kembali ke Simulasi</button>
+    </a>
+  </main>
+
+  <!-- Start of Tawk.to Script -->
+  <script type="text/javascript">
+  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  (function(){
+    var s1=document.createElement("script"),
+        s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/686cb4456bad05190e60cfa4/1ivka0cm9';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+  })();
+  </script>
+  <!-- End of Tawk.to Script -->
 
 </body>
-  </html>
-  
+</html>
