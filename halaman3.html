@@ -93,11 +93,12 @@
     </a>
   </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+  <!-- Firebase JS SDK (tanpa module) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+  <script>
+    // Konfigurasi Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAR7Gck3aerU7XErxetQp3KgsMYFGqn5Zo",
       authDomain: "grup-obrolan-penanaman.firebaseapp.com",
@@ -108,22 +109,22 @@
       appId: "1:822090541791:web:943a33b5ea1ecb97f1576a"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const chatRef = ref(db, "pesan");
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const chatRef = database.ref("pesan");
 
     function kirimPesan() {
       const nama = document.getElementById("username").value.trim();
       const teks = document.getElementById("message").value.trim();
       if (nama && teks) {
-        push(chatRef, { nama: nama, teks: teks });
+        chatRef.push({ nama: nama, teks: teks });
         document.getElementById("message").value = "";
       }
     }
 
     const chatLog = document.getElementById("chatLog");
-    onChildAdded(chatRef, (data) => {
-      const pesan = data.val();
+    chatRef.on("child_added", (snapshot) => {
+      const pesan = snapshot.val();
       const elemen = document.createElement("p");
       elemen.innerHTML = `<strong>${pesan.nama}:</strong> ${pesan.teks}`;
       chatLog.appendChild(elemen);
