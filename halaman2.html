@@ -2,116 +2,110 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Video Penanaman dengan Pupuk</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background-color: #e0f0ff;
       font-family: Arial, sans-serif;
-      padding: 20px;
       text-align: center;
+      padding: 10px;
+      margin: 0;
     }
 
     header {
       background-color: #b0d4ff;
-      padding: 20px;
-      border-radius: 10px;
+      padding: 20px 10px;
     }
 
     video {
-      width: 100%;
+      width: 95%;
       max-width: 600px;
-      border-radius: 12px;
-      margin-top: 10px;
-    }
-
-    h2, h3 {
-      margin-top: 30px;
-      font-size: 1.4em;
-    }
-
-    ul {
-      text-align: left;
-      max-width: 600px;
-      margin: 0 auto;
-      font-size: 1.1em;
+      border-radius: 10px;
     }
 
     .simulasi {
       background-color: #ffffff;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
       margin-top: 30px;
       border: 2px solid #a7d7f9;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
     }
 
     .hasil {
       background-color: #e3f7ff;
       padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      color: #1e4f66;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
     }
 
     .hasil img {
-      width: 120px;
+      width: 140px;
+      max-width: 45%;
       margin: 10px;
       border-radius: 10px;
     }
 
     select {
       width: 90%;
-      max-width: 300px;
+      max-width: 400px;
       padding: 10px;
       margin: 10px auto;
+      display: block;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 16px;
     }
 
     button {
-      padding: 10px 20px;
-      background-color: #9bd1ff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
       cursor: pointer;
-      margin-top: 20px;
+      padding: 10px 20px;
+      margin: 15px 5px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background-color: #8ecaff;
     }
 
-    #disqus_thread {
-      margin-top: 40px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+    h2, h3 {
+      margin-top: 30px;
+    }
+
+    /* Responsive text */
+    @media (max-width: 500px) {
+      h1, h2 {
+        font-size: 22px;
+      }
+      .hasil img {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h2>Video Penanaman dengan Pupuk</h2>
+    <h1>Video Penanaman dengan Pupuk</h1>
   </header>
 
   <p>Video ini menunjukkan cara menanam tumbuhan dengan pupuk alami agar hasilnya optimal.</p>
 
   <video controls>
     <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-    Browser Anda tidak mendukung tag video.
+    Browser kamu tidak mendukung video.
   </video>
 
   <h2>📘 Penjelasan Penggunaan Pupuk</h2>
-  <ul>
+  <ul style="text-align: left; max-width: 600px; margin: 0 auto; font-size: 18px;">
     <li>Berikan pupuk setiap 7 hari sekali.</li>
     <li>Gunakan pupuk cair, encerkan 1 bagian pupuk + 10 bagian air.</li>
     <li>Siramkan ke tanah sekitar akar, bukan ke daun.</li>
   </ul>
 
   <div class="simulasi">
-    <h3>✏️ Simulasi Takaran Pupuk</h3>
+    <h3>🧪 Simulasi Takaran Pupuk</h3>
     <select id="jenisTanaman" onchange="tampilkanTakaran()">
       <option value="">-- Pilih Tanaman --</option>
       <option value="cabai">🌶 Cabai</option>
@@ -131,29 +125,13 @@
     <div id="hasilTakaran" class="hasil" style="display:none;"></div>
   </div>
 
-  <!-- Komentar Disqus -->
   <h2>💬 Komentar Pengunjung</h2>
-  <div id="disqus_thread"></div>
-  <script>
-    var disqus_config = function () {
-      this.page.url = "https://freyanantan.github.io/tanaman/halaman2.html";
-      this.page.identifier = "penanaman-nantan";
-    };
-    (function() {
-      var d = document, s = d.createElement('script');
-      s.src = 'https://penanaman-nantan.disqus.com/embed.js';
-      s.setAttribute('data-timestamp', +new Date());
-      (d.head || d.body).appendChild(s);
-    })();
-  </script>
+  <div id="disqus_thread" style="max-width: 700px; margin: 0 auto;"></div>
 
-  <!-- Tombol Kembali -->
-  <br><br>
-  <a href="index.html">
-    <button>⬅️ Kembali ke Halaman 1</button>
-  </a>
+  <!-- 🔙 Tombol kembali -->
+  <a href="index.html"><button>⬅️ Kembali ke Halaman 1</button></a>
+  <a href="halaman3.html"><button>➡️ Lanjut ke Ruang Bisnis / Grup Perkumpulan</button></a>
 
-  <!-- Script JavaScript -->
   <script>
     function tampilkanTakaran() {
       const tanaman = document.getElementById("jenisTanaman").value;
@@ -174,13 +152,19 @@
         terong: "tanaman_terong.jpg"
       };
 
-      let gambarPupuk = pupuk === "organik" ? "pupuk_organik.jpg" : "pupuk_kimia.jpg";
-      let takaran = pupuk === "organik"
-        ? "Gunakan pupuk organik setiap 5–10 hari."
-        : "Gunakan pupuk kimia (NPK/Urea) setiap 7–10 hari.";
-      let namaPupuk = pupuk === "organik"
-        ? "Kompos, Pupuk Kandang, POC"
-        : "NPK, Urea, KCl";
+      let gambarPupuk = "";
+      let takaran = "";
+      let namaPupuk = "";
+
+      if (pupuk === "organik") {
+        gambarPupuk = "pupuk_organik.jpg";
+        takaran = "Gunakan pupuk organik setiap 5–10 hari.";
+        namaPupuk = "Kompos, Pupuk Kandang, POC";
+      } else {
+        gambarPupuk = "pupuk_kimia.jpg";
+        takaran = "Gunakan pupuk kimia (NPK/Urea) setiap 7–10 hari.";
+        namaPupuk = "NPK, Urea, KCl";
+      }
 
       hasil.innerHTML = `
         <p><strong>Takaran:</strong><br>${takaran}</p>
@@ -192,11 +176,20 @@
     }
   </script>
 
-  <noscript>Silakan aktifkan JavaScript untuk melihat komentar.</noscript>
+  <!-- DISQUS KOMENTAR -->
+  <script>
+    var disqus_config = function () {
+      this.page.url = "https://freyanantan.github.io/tanaman/halaman2.html";
+      this.page.identifier = "halaman2";
+    };
+    (function () {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://penanaman-nantan.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Aktifkan JavaScript untuk melihat komentar.</noscript>
 
-<a href="halaman3.html">
-  <button>➡️ Lanjut ke Ruang Bisnis / Grup Perkumpulan</button>
-</a>
-  
 </body>
 </html>
