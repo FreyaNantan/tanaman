@@ -85,7 +85,7 @@
       z-index: 1;
     }
 
-    .comment-popup, .admin-popup {
+    .comment-popup {
       position: fixed;
       top: 0;
       left: 0;
@@ -98,26 +98,40 @@
       z-index: 1000;
     }
 
-    .comment-popup-content, .admin-popup-content {
-      background: white;
+    .comment-popup-content {
+      background: #cce6ff;
       padding: 20px;
       border-radius: 12px;
       width: 90%;
       max-width: 400px;
       max-height: 80%;
       overflow-y: auto;
+      color: #003366;
     }
 
-    .comment-popup-content input, .admin-popup-content input {
+    .comment-popup-content input {
       width: 100%;
       margin: 5px 0;
-      padding: 6px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #0077cc;
+    }
+
+    .comment-popup-content button {
+      margin-top: 8px;
+      padding: 10px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
     }
 
     .delete-btn {
       position: absolute;
       bottom: 10px;
-      left: 10px;
+      right: 10px;
       background: #ff4444;
       color: white;
       border: none;
@@ -125,11 +139,6 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
-      display: none;
-    }
-
-    .show-delete .delete-btn {
-      display: block;
     }
   </style>
 </head>
@@ -156,40 +165,9 @@
     </div>
   </div>
 
-  <!-- Popup Admin Login -->
-  <div class="admin-popup" id="adminPopup">
-    <div class="admin-popup-content">
-      <h3>Masuk Admin</h3>
-      <input type="password" id="adminPassword" placeholder="Masukkan Password Admin" />
-      <button onclick="verifikasiAdmin()">Masuk</button>
-      <button onclick="tutupAdminPopup()">Batal</button>
-    </div>
-  </div>
-
   <script>
     let komentarIndex = null;
     let videosGlobal = [];
-    let isAdmin = false;
-
-    document.getElementById("adminIcon").onclick = function() {
-      document.getElementById("adminPopup").style.display = "flex";
-    };
-
-    function tutupAdminPopup() {
-      document.getElementById("adminPopup").style.display = "none";
-    }
-
-    function verifikasiAdmin() {
-      const input = document.getElementById("adminPassword").value;
-      if (input === "admin54321") {
-        isAdmin = true;
-        alert("Berhasil masuk sebagai admin.");
-        document.getElementById("adminPopup").style.display = "none";
-        loadVideos();
-      } else {
-        alert("Password salah!");
-      }
-    }
 
     function bukaKomentar(i) {
       komentarIndex = i;
@@ -200,6 +178,8 @@
 
     function tutupKomentar() {
       document.getElementById("commentPopup").style.display = "none";
+      document.getElementById("namaKomentar").value = "";
+      document.getElementById("isiKomentar").value = "";
     }
 
     async function kirimKomentarTerbuka() {
@@ -223,59 +203,9 @@
         body: JSON.stringify({ videos })
       });
 
-      tutupKomentar();
       loadVideos();
+      document.getElementById("isiKomentar").value = "";
     }
-
-    async function hapusVideo(index) {
-      if (!confirm("Yakin ingin menghapus video ini?")) return;
-      const res = await fetch(`https://api.jsonbin.io/v3/b/687085726063391d31ab3bd3/latest`, {
-        headers: { "X-Master-Key": "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK" }
-      });
-      const data = await res.json();
-      const videos = data.record.videos;
-      videos.splice(index, 1);
-
-      await fetch(`https://api.jsonbin.io/v3/b/687085726063391d31ab3bd3`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK"
-        },
-        body: JSON.stringify({ videos })
-      });
-
-      loadVideos();
-    }
-
-    async function loadVideos() {
-      const feed = document.getElementById("videoFeed");
-      feed.innerHTML = "<p>Memuat video...</p>";
-
-      const res = await fetch(`https://api.jsonbin.io/v3/b/687085726063391d31ab3bd3/latest`, {
-        headers: { "X-Master-Key": "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK" }
-      });
-      const data = await res.json();
-      videosGlobal = data.record.videos;
-
-      feed.innerHTML = "";
-
-      videosGlobal.forEach((v, i) => {
-        const card = document.createElement("div");
-        card.className = "video-card" + (isAdmin ? " show-delete" : "");
-
-        card.innerHTML = `
-          <video controls src="${v.url}"></video>
-          <div class="view-count">👁️ ${v.views || 0} views</div>
-          <div class="comment-icon" onclick="bukaKomentar(${i})">💬</div>
-          ${isAdmin ? `<button class="delete-btn" onclick="hapusVideo(${i})">🗑️</button>` : ""}
-        `;
-
-        feed.appendChild(card);
-      });
-    }
-
-    loadVideos();
   </script>
 </body>
 </html>
