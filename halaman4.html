@@ -3,22 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Video Penanaman (Halaman 4)</title>
+  <title>Video Penanaman</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
-      background-color: #e0f0ff;
+      background-color: #3399ff;
       scroll-behavior: smooth;
       height: 100%;
       overflow: hidden;
-    }
-
-    h1 {
-      text-align: center;
-      color: #0077cc;
-      padding: 20px;
     }
 
     .snap-container {
@@ -32,7 +26,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0;
     }
 
     .video-card {
@@ -65,36 +58,23 @@
       font-size: 14px;
     }
 
-    .btn-komentar, .btn-hapus {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(255,255,255,0.8);
-      border: none;
-      padding: 10px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    .btn-scroll-upload, .btn-login-admin {
+    .btn-scroll-upload {
       position: fixed;
       top: 20px;
-      z-index: 999;
-      background: #3399ff;
-      color: white;
+      right: 20px;
+      background: #fff;
+      color: #3399ff;
       border: none;
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
-      font-size: 20px;
+      font-size: 24px;
+      z-index: 1000;
       cursor: pointer;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
 
-    .btn-scroll-upload { right: 20px; }
-    .btn-login-admin { left: 20px; }
-
-    .overlay-upload, .overlay, .overlay-login {
+    .overlay-upload {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
@@ -105,7 +85,7 @@
       z-index: 1000;
     }
 
-    .form-upload, .konten, .form-login {
+    .form-upload {
       background: white;
       padding: 20px;
       border-radius: 12px;
@@ -115,7 +95,7 @@
       text-align: center;
     }
 
-    .form-upload input, .konten input, .form-login input {
+    .form-upload input {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
@@ -123,7 +103,7 @@
       border: 1px solid #ccc;
     }
 
-    .form-upload button, .konten button, .form-login button {
+    .form-upload button {
       padding: 10px;
       width: 100%;
       background: #3399ff;
@@ -145,19 +125,7 @@
   </style>
 </head>
 <body>
-  <h1>📹 Video Penanaman <span id="adminTag"></span></h1>
-  <button type="button" class="btn-scroll-upload" onclick="bukaUpload()">⏫</button>
-  <button type="button" class="btn-login-admin" onclick="bukaLogin()">🔐</button>
-
-  <div class="overlay-login" id="loginOverlay">
-    <div class="form-login">
-      <button class="close-btn" onclick="tutupLogin()">✖</button>
-      <h2>Login Admin</h2>
-      <input type="text" id="loginUser" placeholder="Username" />
-      <input type="password" id="loginPass" placeholder="Password" />
-      <button onclick="loginAdmin()">Masuk</button>
-    </div>
-  </div>
+  <button class="btn-scroll-upload" onclick="bukaUpload()">⏫</button>
 
   <div class="overlay-upload" id="uploadOverlay">
     <div class="form-upload">
@@ -165,18 +133,8 @@
       <h2>Upload Video</h2>
       <input type="text" id="judulVideo" placeholder="Judul Video" required />
       <input type="file" id="videoFile" accept="video/*" required />
-      <input type="password" id="kodeSandi" placeholder="Kode Sandi Penghapus (rahasia)" required />
       <button onclick="unggahVideo()">Unggah</button>
       <p id="statusUpload"></p>
-    </div>
-  </div>
-
-  <div class="overlay" id="hapusOverlay">
-    <div class="konten">
-      <button class="close-btn" onclick="tutupHapus()">✖</button>
-      <h2>Hapus Video Ini?</h2>
-      <input type="password" id="kodeHapus" placeholder="Masukkan kode sandi...">
-      <button onclick="konfirmasiHapus()">🗑️ Konfirmasi Hapus</button>
     </div>
   </div>
 
@@ -185,7 +143,134 @@
   </div>
 
   <script>
-    // Skrip JavaScript tetap sama seperti sebelumnya
+    const CLOUD_NAME = "dtl4uiytm";
+    const UPLOAD_PRESET = "penanaman_preset";
+    const BIN_ID = "687085726063391d31ab3bd3";
+    const API_KEY = "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK";
+
+    const videoFeed = document.getElementById("videoFeed");
+    const uploadOverlay = document.getElementById("uploadOverlay");
+    const statusUpload = document.getElementById("statusUpload");
+
+    function bukaUpload() {
+      uploadOverlay.style.display = "flex";
+    }
+
+    function tutupUpload() {
+      uploadOverlay.style.display = "none";
+      document.getElementById("videoFile").value = "";
+      document.getElementById("judulVideo").value = "";
+      statusUpload.textContent = "";
+    }
+
+    async function unggahVideo() {
+      const file = document.getElementById("videoFile").files[0];
+      const title = document.getElementById("judulVideo").value.trim();
+      if (!file || !title) return alert("Judul dan file video wajib diisi.");
+
+      statusUpload.textContent = "⏳ Mengunggah video...";
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+      formData.append("folder", "video-penanaman");
+
+      try {
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+
+        const videoBaru = {
+          url: uploadData.secure_url,
+          title: title,
+          views: 0,
+          comments: []
+        };
+
+        const getRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+          headers: { "X-Master-Key": API_KEY }
+        });
+        const data = await getRes.json();
+        const videos = data.record.videos || [];
+
+        videos.unshift(videoBaru);
+
+        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": API_KEY
+          },
+          body: JSON.stringify({ videos })
+        });
+
+        statusUpload.textContent = "✅ Berhasil diunggah!";
+        setTimeout(() => {
+          tutupUpload();
+          loadVideos();
+        }, 1000);
+      } catch (err) {
+        console.error(err);
+        statusUpload.textContent = "❌ Gagal mengunggah.";
+      }
+    }
+
+    async function loadVideos() {
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+          headers: { "X-Master-Key": API_KEY }
+        });
+        const data = await res.json();
+        const videos = data.record.videos || [];
+
+        videoFeed.innerHTML = "";
+        videos.forEach((video, index) => {
+          const card = document.createElement("div");
+          card.className = "video-card";
+
+          card.innerHTML = `
+            <video id="vid-${index}" src="${video.url}" playsinline controls></video>
+            <div class="view-count" id="view-${index}">👁️ ${video.views || 0} views</div>
+          `;
+
+          videoFeed.appendChild(card);
+
+          const vid = document.getElementById(`vid-${index}`);
+          vid.addEventListener("play", () => tambahView(index));
+        });
+      } catch (err) {
+        videoFeed.innerHTML = "<p style='color:white'>Gagal memuat video.</p>";
+        console.error(err);
+      }
+    }
+
+    async function tambahView(index) {
+      const key = "viewed_" + index;
+      if (localStorage.getItem(key)) return;
+
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { "X-Master-Key": API_KEY }
+      });
+      const data = await res.json();
+      const videos = data.record.videos;
+
+      videos[index].views = (videos[index].views || 0) + 1;
+      localStorage.setItem(key, "1");
+
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY
+        },
+        body: JSON.stringify({ videos })
+      });
+
+      document.getElementById(`view-${index}`).innerText = `👁️ ${videos[index].views} views`;
+    }
+
+    loadVideos();
   </script>
 </body>
 </html>
