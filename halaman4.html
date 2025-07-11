@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Video Pendek Fullscreen</title>
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: sans-serif;
       overflow: hidden;
+      background: black;
     }
 
     .video-feed {
@@ -24,7 +25,6 @@
       height: 100vh;
       position: relative;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       background: black;
@@ -42,23 +42,39 @@
       color: white;
       font-size: 18px;
       background: rgba(0,0,0,0.5);
-      padding: 5px 10px;
-      border-radius: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
     }
 
     .btn-komentar {
       position: absolute;
-      bottom: 20px;
+      top: 50%;
       right: 20px;
-      background: rgba(255,255,255,0.7);
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.8);
       border: none;
-      padding: 10px;
+      padding: 12px;
       border-radius: 50%;
       font-size: 18px;
       cursor: pointer;
+      z-index: 5;
     }
 
-    /* Overlay Komentar */
+    .btn-upload {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,123,255,0.9);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 999;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
+
     .overlay {
       position: fixed;
       top: 0;
@@ -66,7 +82,7 @@
       right: 0;
       bottom: 0;
       background: white;
-      z-index: 999;
+      z-index: 1000;
       display: none;
       flex-direction: column;
       padding: 20px;
@@ -92,22 +108,34 @@
       padding: 10px;
       width: 100%;
       margin-bottom: 10px;
+      font-size: 16px;
     }
 
     .komentar-list {
       margin-top: 10px;
-      max-height: 200px;
+      max-height: 250px;
       overflow-y: auto;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+      font-size: 16px;
+    }
+
+    .komentar-item {
+      margin-bottom: 6px;
     }
   </style>
 </head>
 <body>
 
+<!-- Tombol Upload -->
+<button class="btn-upload" onclick="alert('Fitur upload akan ditambahkan nanti')">⏫</button>
+
+<!-- Feed Video -->
 <div class="video-feed" id="videoFeed">Loading...</div>
 
 <!-- Overlay Komentar -->
 <div class="overlay" id="komentarOverlay">
-  <button class="close-btn" onclick="tutupKomentar()">Tutup ✖</button>
+  <button class="close-btn" onclick="tutupKomentar()">✖ Tutup</button>
   <h2>Komentar</h2>
   <input type="text" id="namaKomentar" placeholder="Nama Anda">
   <input type="text" id="pesanKomentar" placeholder="Tulis komentar...">
@@ -149,7 +177,7 @@
     const list = document.getElementById("listKomentar");
     const data = videoData[index].comments || [];
 
-    list.innerHTML = data.map(k => `💬 <b>${k.nama}</b>: ${k.pesan}`).join("<br>");
+    list.innerHTML = data.map(k => `<div class="komentar-item">💬 <b>${k.nama}</b>: ${k.pesan}</div>`).join("");
     overlay.style.display = "flex";
   }
 
@@ -162,7 +190,7 @@
   async function kirimKomentar() {
     const nama = document.getElementById("namaKomentar").value.trim();
     const pesan = document.getElementById("pesanKomentar").value.trim();
-    if (!nama || !pesan) return alert("Lengkapi nama dan komentar.");
+    if (!nama || !pesan) return alert("Isi nama dan komentar!");
 
     const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
       headers: { "X-Master-Key": API_KEY }
@@ -182,8 +210,10 @@
       body: JSON.stringify({ videos })
     });
 
-    tutupKomentar();
-    loadVideos();
+    // Tambahkan komentar langsung di layar
+    const list = document.getElementById("listKomentar");
+    list.innerHTML += `<div class="komentar-item">💬 <b>${nama}</b>: ${pesan}</div>`;
+    document.getElementById("pesanKomentar").value = "";
   }
 
   loadVideos();
