@@ -3,81 +3,232 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Upload Video Pendek</title>
+  <title>Video Penanaman</title>
   <style>
     body {
-      font-family: sans-serif;
-      text-align: center;
+      background-color: #e0f0ff;
+      font-family: Arial, sans-serif;
       padding: 20px;
+      margin: 0;
     }
 
-    #uploadBtn[disabled] {
-      background-color: #ccc;
-      cursor: not-allowed;
+    h1 {
+      text-align: center;
+      color: #0077cc;
     }
 
-    .spinner {
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      border: 4px solid rgba(0, 0, 0, 0.2);
-      border-top-color: #3498db;
-      border-radius: 50%;
-      animation: spin 1s ease-in-out infinite;
+    .upload-container {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .feed {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    video {
+      width: 100%;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      background: #000;
+    }
+
+    .info {
+      padding: 10px;
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .comment {
       margin-top: 10px;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .comment input {
+      width: 80%;
+      padding: 8px;
+      margin-right: 5px;
+    }
+
+    .comment button {
+      padding: 8px 10px;
+    }
+
+    .loading {
+      display: none;
+      color: green;
+    }
+
+    .back {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .back button {
+      padding: 10px 20px;
+      background-color: #999;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h2>Upload Video Pendek (seperti TikTok)</h2>
-  <input type="file" id="upload" accept="video/*" />
-  <br><br>
-  <button id="uploadBtn" onclick="uploadVideo()">Unggah Video</button>
-  
-  <div id="status"></div>
+
+  <h1>🎥 Video Penanaman</h1>
+
+  <div class="upload-container">
+    <h3>Unggah Video Anda</h3>
+    <input type="file" id="videoInput" accept="video/*" />
+    <input type="text" id="videoTitle" placeholder="Judul Video" />
+    <button onclick="uploadVideo()">Upload</button>
+    <p class="loading" id="loadingText">⏳ Mengunggah video...</p>
+  </div>
+
+  <div class="feed" id="feed">
+    <p>📡 Memuat video...</p>
+  </div>
+
+  <div class="back">
+    <a href="halaman3.html">
+      <button>⬅️ Kembali ke Halaman 3</button>
+    </a>
+  </div>
 
   <script>
-    async function uploadVideo() {
-      const file = document.getElementById("upload").files[0];
-      const btn = document.getElementById("uploadBtn");
-      const status = document.getElementById("status");
+    const CLOUD_NAME = "dtl4uiytm";
+    const UPLOAD_PRESET = "penanaman_preset";
+    const BIN_ID = "687080376063391d31ab39f3";
+    const API_KEY = "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK";
+    const loadingText = document.getElementById("loadingText");
 
-      if (!file) {
-        alert("Pilih video dulu!");
+    async function uploadVideo() {
+      const file = document.getElementById("videoInput").files[0];
+      const title = document.getElementById("videoTitle").value.trim();
+
+      if (!file || !title) {
+        alert("Pilih video dan isi judul.");
         return;
       }
 
-      btn.disabled = true;
-      status.innerHTML = `<div class="spinner"></div><p>Mengunggah video...</p>`;
+      loadingText.style.display = "block";
 
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "penanaman_preset");
+      formData.append("upload_preset", UPLOAD_PRESET);
       formData.append("folder", "video-penanaman");
 
-      try {
-        const response = await fetch("https://api.cloudinary.com/v1_1/dtl4uiytm/video/upload", {
-          method: "POST",
-          body: formData
-        });
-        const data = await response.json();
+      const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
-        status.innerHTML = `
-          ✅ Sukses! Video berhasil diunggah.<br><br>
-          <video width="300" controls src="${data.secure_url}"></video><br><br>
-          <a href="${data.secure_url}" target="_blank">${data.secure_url}</a>
-        `;
-      } catch (err) {
-        console.error(err);
-        status.innerHTML = `<p style="color:red;">❌ Gagal mengunggah video.</p>`;
-      }
+      const cloudData = await cloudRes.json();
+      const videoURL = cloudData.secure_url;
 
-      btn.disabled = false;
+      const current = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: {
+          "X-Master-Key": API_KEY
+        }
+      });
+      const jsonData = await current.json();
+      const videos = jsonData.record || [];
+
+      videos.unshift({
+        url: videoURL,
+        title: title,
+        views: 0,
+        comments: []
+      });
+
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY
+        },
+        body: JSON.stringify(videos)
+      });
+
+      alert("Video berhasil diunggah!");
+      loadingText.style.display = "none";
+      document.getElementById("videoInput").value = "";
+      document.getElementById("videoTitle").value = "";
+      loadVideos();
     }
+
+    async function loadVideos() {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: {
+          "X-Master-Key": API_KEY
+        }
+      });
+      const data = await res.json();
+      const feed = document.getElementById("feed");
+      feed.innerHTML = "";
+
+      data.record.forEach((vid, index) => {
+        const videoBox = document.createElement("div");
+        videoBox.innerHTML = `
+          <video src="${vid.url}" controls></video>
+          <div class="info">
+            <strong>${vid.title}</strong><br>
+            👁️ <span id="view${index}">${vid.views}</span> kali dilihat
+            <div class="comment">
+              <input type="text" id="comment${index}" placeholder="Komentar...">
+              <button onclick="kirimKomentar(${index})">Kirim</button>
+            </div>
+            <div id="comments${index}">
+              ${vid.comments.map(c => `<p>💬 ${c}</p>`).join("")}
+            </div>
+          </div>
+        `;
+        feed.appendChild(videoBox);
+
+        // Tambah view
+        vid.views++;
+        updateJSON(data.record);
+      });
+    }
+
+    async function updateJSON(newData) {
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY
+        },
+        body: JSON.stringify(newData)
+      });
+    }
+
+    async function kirimKomentar(index) {
+      const input = document.getElementById(`comment${index}`);
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: {
+          "X-Master-Key": API_KEY
+        }
+      });
+
+      const data = await res.json();
+      data.record[index].comments.push(text);
+      await updateJSON(data.record);
+      loadVideos();
+    }
+
+    loadVideos();
   </script>
 </body>
 </html>
