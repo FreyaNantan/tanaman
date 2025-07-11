@@ -163,8 +163,12 @@
           views: 0,
           comments: []
         };
-        semuaVideo.unshift(videoObj);
-        await saveVideoData(semuaVideo);
+
+        // Ambil data terbaru dari JSONBin sebelum simpan
+        const latestVideos = await fetchVideoData();
+        latestVideos.unshift(videoObj);
+        await saveVideoData(latestVideos);
+        semuaVideo = latestVideos;
 
         document.getElementById("uploadStatus").innerText = "✅ Unggah berhasil!";
         document.getElementById("judulVideo").value = "";
@@ -217,7 +221,6 @@
       semuaVideo[i].comments.push(pesan);
       await saveVideoData(semuaVideo);
 
-      // Update hanya komentar list
       const list = document.getElementById(`list-${i}`);
       list.innerHTML = semuaVideo[i].comments.map(k => `🗨️ ${k}`).join("<br>");
       textarea.value = "";
