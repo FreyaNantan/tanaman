@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Video Pendek Fullscreen</title>
+  <title>Video Penanaman</title>
   <style>
     html, body {
       margin: 0;
@@ -128,7 +128,7 @@
 <body>
 
 <!-- Tombol Upload -->
-<button class="btn-upload" onclick="alert('Fitur upload akan ditambahkan nanti')">⏫</button>
+<button class="btn-upload" onclick="alert('Form upload akan ditambahkan nanti')">⏫</button>
 
 <!-- Feed Video -->
 <div class="video-feed" id="videoFeed">Loading...</div>
@@ -210,7 +210,7 @@
       body: JSON.stringify({ videos })
     });
 
-    // Tambahkan komentar langsung di layar
+    // Tambah komentar langsung di layar
     const list = document.getElementById("listKomentar");
     list.innerHTML += `<div class="komentar-item">💬 <b>${nama}</b>: ${pesan}</div>`;
     document.getElementById("pesanKomentar").value = "";
