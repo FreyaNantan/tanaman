@@ -102,6 +102,16 @@
       border: 2px solid green;
     }
 
+    .navigasi {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .navigasi a button {
+      margin: 5px;
+      background-color: #999;
+    }
+
     @media (max-width: 600px) {
       .chat-log {
         height: 250px;
@@ -135,10 +145,13 @@
     <button onclick="kirimPesan()">Kirim</button>
   </div>
 
-  <!-- Tombol kembali ke halaman 2 -->
-  <div style="text-align: center; margin-top: 30px;">
+  <!-- Tombol navigasi -->
+  <div class="navigasi">
     <a href="halaman2.html">
-      <button style="background-color: #999;">⬅️ Kembali ke Halaman 2</button>
+      <button>⬅️ Kembali ke Halaman 2</button>
+    </a>
+    <a href="halaman4.html">
+      <button>🎬 Lanjut ke Halaman 4</button>
     </a>
   </div>
 
@@ -150,7 +163,6 @@
   <audio id="notifSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3" preload="auto"></audio>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAR7Gck3aerU7XErxetQp3KgsMYFGqn5Zo",
       authDomain: "grup-obrolan-penanaman.firebaseapp.com",
@@ -164,16 +176,15 @@
     const database = firebase.database();
     const chatRef = database.ref("pesan");
 
-    // Avatar dari daftar
     const avatarList = [
-  "https://cdn-icons-png.flaticon.com/512/765/765449.png", // Anak kebun topi
-  "https://cdn-icons-png.flaticon.com/512/2815/2815428.png", // Wajah lucu bibit
-  "https://cdn-icons-png.flaticon.com/512/2809/2809641.png", // Bibit bertunas
-  "https://cdn-icons-png.flaticon.com/512/2577/2577069.png", // Wajah daun
-  "https://cdn-icons-png.flaticon.com/512/3069/3069174.png", // Petani
-  "https://cdn-icons-png.flaticon.com/512/1709/1709786.png", // Karakter imut kebun
-  "https://cdn-icons-png.flaticon.com/512/5907/5907361.png"  // Wajah buah lucu
-];
+      "https://cdn-icons-png.flaticon.com/512/765/765449.png",
+      "https://cdn-icons-png.flaticon.com/512/2815/2815428.png",
+      "https://cdn-icons-png.flaticon.com/512/2809/2809641.png",
+      "https://cdn-icons-png.flaticon.com/512/2577/2577069.png",
+      "https://cdn-icons-png.flaticon.com/512/3069/3069174.png",
+      "https://cdn-icons-png.flaticon.com/512/1709/1709786.png",
+      "https://cdn-icons-png.flaticon.com/512/5907/5907361.png"
+    ];
 
     const daftarAvatar = document.getElementById("daftarAvatar");
     avatarList.forEach(url => {
@@ -188,7 +199,6 @@
       daftarAvatar.appendChild(img);
     });
 
-    // Upload gambar
     document.getElementById("uploadFoto").addEventListener("change", function () {
       const file = this.files[0];
       if (file) {
@@ -202,7 +212,6 @@
       }
     });
 
-    // Kirim pesan
     function kirimPesan() {
       const nama = document.getElementById("username").value.trim();
       const teks = document.getElementById("message").value.trim();
@@ -215,7 +224,6 @@
       }
     }
 
-    // Tampilkan pesan
     const chatLog = document.getElementById("chatLog");
     const notif = document.getElementById("notifSound");
 
