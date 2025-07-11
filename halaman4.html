@@ -113,7 +113,7 @@
     <h3>📤 Upload Video Baru</h3>
     <input type="text" id="judulVideo" placeholder="Judul Video" required />
     <input type="file" id="videoFile" accept="video/*" required />
-    <button class="upload-btn" onclick="uploadVideo()">Unggah</button>
+    <button type="button" class="upload-btn" onclick="uploadVideo()">Unggah</button>
     <p id="uploadStatus"></p>
   </div>
 
@@ -148,32 +148,44 @@
     async function uploadVideo() {
       const file = document.getElementById("videoFile").files[0];
       const title = document.getElementById("judulVideo").value.trim();
+      const tombol = document.querySelector(".upload-btn");
+
       if (!file || !title) return alert("Judul dan video wajib diisi.");
+
+      tombol.disabled = true;
+      document.getElementById("uploadStatus").innerText = "⏳ Mengunggah video...";
 
       const form = new FormData();
       form.append("file", file);
       form.append("upload_preset", CLOUDINARY_PRESET);
-      document.getElementById("uploadStatus").innerText = "⏳ Mengunggah video...";
 
-      const res = await fetch(CLOUDINARY_UPLOAD_URL, {
-        method: "POST",
-        body: form
-      });
-      const data = await res.json();
+      try {
+        const res = await fetch(CLOUDINARY_UPLOAD_URL, {
+          method: "POST",
+          body: form
+        });
+        const data = await res.json();
 
-      const videoObj = {
-        url: data.secure_url,
-        title,
-        views: 0,
-        comments: []
-      };
-      const videos = await fetchVideoData();
-      videos.unshift(videoObj);
-      await saveVideoData(videos);
-      document.getElementById("uploadStatus").innerText = "✅ Unggah berhasil!";
-      document.getElementById("judulVideo").value = "";
-      document.getElementById("videoFile").value = "";
-      tampilkanVideo();
+        const videoObj = {
+          url: data.secure_url,
+          title,
+          views: 0,
+          comments: []
+        };
+        const videos = await fetchVideoData();
+        videos.unshift(videoObj);
+        await saveVideoData(videos);
+
+        document.getElementById("uploadStatus").innerText = "✅ Unggah berhasil!";
+        document.getElementById("judulVideo").value = "";
+        document.getElementById("videoFile").value = "";
+        tampilkanVideo();
+      } catch (err) {
+        document.getElementById("uploadStatus").innerText = "❌ Gagal mengunggah.";
+        console.error(err);
+      } finally {
+        tombol.disabled = false;
+      }
     }
 
     async function tampilkanVideo() {
@@ -193,7 +205,7 @@
           <p class="views">👁️ Dilihat: ${video.views}</p>
           <div class="komentar">
             <textarea id="komentar-${index}" placeholder="Tulis komentar..."></textarea>
-            <button onclick="kirimKomentar(${index})">Kirim</button>
+            <button type="button" onclick="kirimKomentar(${index})">Kirim</button>
             <div class="komentar-list" id="list-${index}">
               ${video.comments.map(k => `🗨️ ${k}`).join("<br>")}
             </div>
