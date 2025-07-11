@@ -10,15 +10,8 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background-color: #3399ff;
-      scroll-behavior: smooth;
       height: 100%;
-      overflow: hidden;
-    }
-    .snap-container {
-      height: 100vh;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      -webkit-overflow-scrolling: touch;
+      overflow-x: hidden;
     }
     .video-feed {
       display: flex;
@@ -26,18 +19,18 @@
       align-items: center;
     }
     .video-card {
-      scroll-snap-align: start;
       width: 100vw;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
       background: #3399ff;
+      padding: 20px 0;
     }
     .video-card video {
-      width: 100%;
-      height: 100%;
+      max-width: 100%;
+      max-height: 90vh;
       object-fit: contain;
       background: #3399ff;
     }
@@ -105,7 +98,7 @@
 </head>
 <body>
   <button class="btn-scroll-upload" onclick="bukaUpload()">⏫</button>
-  
+
   <div class="overlay-upload" id="uploadOverlay">
     <div class="form-upload">
       <button class="close-btn" onclick="tutupUpload()">✖</button>
@@ -116,11 +109,9 @@
       <p id="statusUpload"></p>
     </div>
   </div>
-  
-  <div class="snap-container">
-    <div class="video-feed" id="videoFeed"></div>
-  </div>
-  
+
+  <div class="video-feed" id="videoFeed"></div>
+
   <script>
     const CLOUD_NAME = "dtl4uiytm";
     const UPLOAD_PRESET = "penanaman_preset";
@@ -198,10 +189,10 @@
         videos.forEach((video, idx) => {
           const card = document.createElement("div");
           card.className = "video-card";
-          card.innerHTML = \`
-            <video id="vid-\${idx}" src="\${video.url}" playsinline controls></video>
-            <div class="view-count" id="view-\${idx}">👁️ \${video.views || 0} views</div>
-          \`;
+          card.innerHTML = `
+            <video id="vid-${idx}" src="${video.url}" controls playsinline></video>
+            <div class="view-count" id="view-${idx}">👁️ ${video.views || 0} views</div>
+          `;
           videoFeed.appendChild(card);
           document.getElementById(`vid-${idx}`).addEventListener("play", () => tambahView(idx));
         });
@@ -229,7 +220,7 @@
         },
         body: JSON.stringify({ videos })
       });
-      document.getElementById(`view-${idx}`).innerText = \`👁️ \${videos[idx].views} views\`;
+      document.getElementById(`view-${idx}`).innerText = `👁️ ${videos[idx].views} views`;
     }
 
     loadVideos();
