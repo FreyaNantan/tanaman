@@ -3,260 +3,191 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Video Penanaman (Halaman 4)</title>
+  <title>Video Pendek Fullscreen</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #e0f0ff;
+    body, html {
       margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #0077cc;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+      overflow: hidden;
     }
 
     .video-feed {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
     }
 
     .video-card {
-      background: white;
-      border-radius: 12px;
-      padding: 15px;
-      margin: 15px 0;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      scroll-snap-align: start;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: black;
     }
 
-    .video-card video {
-      width: 100%;
-      border-radius: 8px;
+    video {
+      max-height: 100%;
+      max-width: 100%;
     }
 
-    .comment-box {
-      margin-top: 10px;
-    }
-
-    .comment-box input {
-      width: 100%;
-      padding: 8px;
+    .judul {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 18px;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 10px;
       border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-top: 5px;
     }
 
-    .view-count {
-      font-size: 14px;
-      color: #666;
-    }
-
-    #uploadForm {
-      margin: 30px auto;
-      max-width: 500px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.08);
-    }
-
-    #uploadForm input[type="file"],
-    #uploadForm input[type="text"],
-    #uploadForm button {
-      width: 100%;
+    .btn-komentar {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.7);
+      border: none;
       padding: 10px;
-      margin: 10px 0;
-      font-size: 16px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
     }
 
-    #statusUpload {
-      text-align: center;
-      color: green;
+    /* Overlay Komentar */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      z-index: 999;
+      display: none;
+      flex-direction: column;
+      padding: 20px;
     }
 
-    .btn-kembali {
-      display: block;
-      margin: 20px auto;
-      background-color: #999;
+    .overlay h2 {
+      margin-top: 0;
+    }
+
+    .overlay .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: red;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 8px 12px;
       border-radius: 6px;
-      text-decoration: none;
-      text-align: center;
+      cursor: pointer;
+    }
+
+    .overlay input {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .komentar-list {
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
     }
   </style>
 </head>
 <body>
 
-  <h1>📹 Video Penanaman Pendek</h1>
+<div class="video-feed" id="videoFeed">Loading...</div>
 
-  <form id="uploadForm">
-    <input type="text" id="judulVideo" placeholder="Judul Video" required />
-    <input type="file" id="videoInput" accept="video/*" required />
-    <button type="submit">⬆️ Unggah Video</button>
-    <p id="statusUpload"></p>
-  </form>
+<!-- Overlay Komentar -->
+<div class="overlay" id="komentarOverlay">
+  <button class="close-btn" onclick="tutupKomentar()">Tutup ✖</button>
+  <h2>Komentar</h2>
+  <input type="text" id="namaKomentar" placeholder="Nama Anda">
+  <input type="text" id="pesanKomentar" placeholder="Tulis komentar...">
+  <button onclick="kirimKomentar()">💬 Kirim</button>
+  <div class="komentar-list" id="listKomentar"></div>
+</div>
 
-  <div class="video-feed" id="videoFeed">
-    <p>Memuat video...</p>
-  </div>
+<script>
+  const BIN_ID = "687085726063391d31ab3bd3";
+  const API_KEY = "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK";
+  let videoData = [];
+  let indexKomentarAktif = null;
 
-  <a href="halaman3.html" class="btn-kembali">⬅️ Kembali ke Halaman 3</a>
+  async function loadVideos() {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { "X-Master-Key": API_KEY }
+    });
+    const data = await res.json();
+    videoData = data.record.videos || [];
 
-  <script>
-    const CLOUD_NAME = "dtl4uiytm";
-    const UPLOAD_PRESET = "penanaman_preset";
-    const BIN_ID = "687085726063391d31ab3bd3";
-    const API_KEY = "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK";
-    const videoFeed = document.getElementById("videoFeed");
-    const statusUpload = document.getElementById("statusUpload");
+    const feed = document.getElementById("videoFeed");
+    feed.innerHTML = "";
 
-    // Upload Video
-    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const file = document.getElementById("videoInput").files[0];
-      const judul = document.getElementById("judulVideo").value.trim();
-      if (!file || !judul) return;
+    videoData.forEach((v, i) => {
+      const card = document.createElement("div");
+      card.className = "video-card";
+      card.innerHTML = `
+        <div class="judul">${v.judul || "Tanpa Judul"}</div>
+        <video src="${v.url}" controls></video>
+        <button class="btn-komentar" onclick="bukaKomentar(${i})">💬</button>
+      `;
+      feed.appendChild(card);
+    });
+  }
 
-      statusUpload.textContent = "⏳ Mengunggah video...";
+  function bukaKomentar(index) {
+    indexKomentarAktif = index;
+    const overlay = document.getElementById("komentarOverlay");
+    const list = document.getElementById("listKomentar");
+    const data = videoData[index].comments || [];
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", UPLOAD_PRESET);
-      formData.append("folder", "video-penanaman");
+    list.innerHTML = data.map(k => `💬 <b>${k.nama}</b>: ${k.pesan}`).join("<br>");
+    overlay.style.display = "flex";
+  }
 
-      try {
-        const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, {
-          method: "POST",
-          body: formData
-        });
+  function tutupKomentar() {
+    document.getElementById("komentarOverlay").style.display = "none";
+    document.getElementById("namaKomentar").value = "";
+    document.getElementById("pesanKomentar").value = "";
+  }
 
-        const cloudData = await cloudRes.json();
+  async function kirimKomentar() {
+    const nama = document.getElementById("namaKomentar").value.trim();
+    const pesan = document.getElementById("pesanKomentar").value.trim();
+    if (!nama || !pesan) return alert("Lengkapi nama dan komentar.");
 
-        const newVideo = {
-          judul: judul,
-          url: cloudData.secure_url,
-          views: 0,
-          comments: []
-        };
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { "X-Master-Key": API_KEY }
+    });
+    const data = await res.json();
+    const videos = data.record.videos;
 
-        const binRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: { "X-Master-Key": API_KEY }
-        });
-        const binData = await binRes.json();
-        const videos = binData.record.videos || [];
-        videos.unshift(newVideo);
+    videos[indexKomentarAktif].comments = videos[indexKomentarAktif].comments || [];
+    videos[indexKomentarAktif].comments.push({ nama, pesan });
 
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Master-Key": API_KEY
-          },
-          body: JSON.stringify({ videos })
-        });
-
-        statusUpload.textContent = "✅ Video berhasil diunggah!";
-        document.getElementById("videoInput").value = "";
-        document.getElementById("judulVideo").value = "";
-        loadVideos();
-      } catch (err) {
-        statusUpload.textContent = "❌ Gagal mengunggah video.";
-        console.error(err);
-      }
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": API_KEY
+      },
+      body: JSON.stringify({ videos })
     });
 
-    // Tampilkan video
-    async function loadVideos() {
-      try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: { "X-Master-Key": API_KEY }
-        });
-        const data = await res.json();
-        const videos = data.record.videos || [];
-
-        videoFeed.innerHTML = "";
-
-        videos.forEach((v, i) => {
-          const card = document.createElement("div");
-          card.className = "video-card";
-
-          const komentarHTML = v.comments?.map(c => `<div>💬 <strong>${c.nama}</strong>: ${c.pesan}</div>`).join("") || "";
-
-          card.innerHTML = `
-            <h3>${v.judul || "Video tanpa judul"}</h3>
-            <video controls src="${v.url}"></video>
-            <div class="view-count">👁️ ${v.views || 0} views</div>
-            <div class="comment-box">
-              <input placeholder="Nama" id="nama-${i}" />
-              <input placeholder="Komentar" id="komentar-${i}" />
-              <button onclick="kirimKomentar(${i})">💬 Kirim</button>
-              <div id="komentarList-${i}">${komentarHTML}</div>
-            </div>
-          `;
-
-          videoFeed.appendChild(card);
-          tambahView(i);
-        });
-      } catch (err) {
-        videoFeed.innerHTML = "<p>❌ Gagal memuat video.</p>";
-      }
-    }
-
-    // Tambah View
-    async function tambahView(index) {
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-        headers: { "X-Master-Key": API_KEY }
-      });
-      const data = await res.json();
-      const videos = data.record.videos;
-      videos[index].views = (videos[index].views || 0) + 1;
-
-      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": API_KEY
-        },
-        body: JSON.stringify({ videos })
-      });
-    }
-
-    // Kirim komentar
-    async function kirimKomentar(index) {
-      const nama = document.getElementById(`nama-${index}`).value.trim();
-      const pesan = document.getElementById(`komentar-${index}`).value.trim();
-      if (!nama || !pesan) return;
-
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-        headers: { "X-Master-Key": API_KEY }
-      });
-      const data = await res.json();
-      const videos = data.record.videos;
-
-      videos[index].comments = videos[index].comments || [];
-      videos[index].comments.push({ nama, pesan });
-
-      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": API_KEY
-        },
-        body: JSON.stringify({ videos })
-      });
-
-      loadVideos();
-    }
-
-    // Muat awal
+    tutupKomentar();
     loadVideos();
-  </script>
+  }
+
+  loadVideos();
+</script>
 
 </body>
 </html>
