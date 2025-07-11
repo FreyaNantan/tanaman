@@ -126,13 +126,45 @@
       cursor: pointer;
       font-size: 14px;
     }
+
+    #uploadPopup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    #uploadPopupContent {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    #uploadPopupContent input {
+      width: 100%;
+      margin: 5px 0;
+      padding: 8px;
+    }
+
+    #uploadPopupContent button {
+      padding: 8px 16px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <header>
     <button id="adminIcon" class="icon-btn">🔐</button>
     <h1>📹 Video Penanaman Pendek</h1>
-    <button id="uploadIcon" class="icon-btn">⏫</button>
+    <button id="uploadIcon" class="icon-btn" onclick="bukaUpload()">⏫</button>
   </header>
 
   <div class="video-feed" id="videoFeed">
@@ -151,7 +183,24 @@
     </div>
   </div>
 
+  <!-- Popup Upload -->
+  <div id="uploadPopup">
+    <div id="uploadPopupContent">
+      <h3>Upload Video Baru</h3>
+      <input type="text" id="judulVideo" placeholder="Judul Video" />
+      <input type="file" id="videoFile" accept="video/*" />
+      <button onclick="unggahVideo()">Unggah</button>
+      <button onclick="tutupUpload()">Batal</button>
+      <p id="statusUpload"></p>
+    </div>
+  </div>
+
   <script>
+    const BIN_ID = "687085726063391d31ab3bd3";
+    const API_KEY = "Bearer $2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK";
+    const CLOUDINARY_UPLOAD_URL = "https://api.cloudinary.com/v1_1/dtl4uiytm/video/upload";
+    const CLOUDINARY_PRESET = "penanaman_preset";
+
     let komentarIndex = null;
     let videosGlobal = [];
 
@@ -166,23 +215,31 @@
       document.getElementById("commentPopup").style.display = "none";
     }
 
+    function bukaUpload() {
+      document.getElementById("uploadPopup").style.display = "flex";
+    }
+
+    function tutupUpload() {
+      document.getElementById("uploadPopup").style.display = "none";
+    }
+
     async function kirimKomentarTerbuka() {
       const nama = document.getElementById("namaKomentar").value.trim();
       const pesan = document.getElementById("isiKomentar").value.trim();
       if (!nama || !pesan) return;
 
-      const res = await fetch(`https://api.jsonbin.io/v3/b/687085726063391d31ab3bd3/latest`, {
-        headers: { "X-Master-Key": "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK" }
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { "X-Master-Key": API_KEY }
       });
       const data = await res.json();
       const videos = data.record.videos;
       videos[komentarIndex].comments.push({ nama, pesan });
 
-      await fetch(`https://api.jsonbin.io/v3/b/687085726063391d31ab3bd3`, {
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "X-Master-Key": "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK"
+          "X-Master-Key": API_KEY
         },
         body: JSON.stringify({ videos })
       });
@@ -190,6 +247,101 @@
       tutupKomentar();
       loadVideos();
     }
+
+    async function unggahVideo() {
+      const file = document.getElementById("videoFile").files[0];
+      const title = document.getElementById("judulVideo").value.trim();
+      const status = document.getElementById("statusUpload");
+      if (!file || !title) return alert("Judul dan file wajib diisi");
+
+      status.textContent = "⏳ Mengunggah video...";
+      const form = new FormData();
+      form.append("file", file);
+      form.append("upload_preset", CLOUDINARY_PRESET);
+
+      const res = await fetch(CLOUDINARY_UPLOAD_URL, {
+        method: "POST",
+        body: form
+      });
+      const data = await res.json();
+
+      const videoBaru = {
+        url: data.secure_url,
+        title,
+        views: 0,
+        comments: []
+      };
+
+      const binRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { "X-Master-Key": API_KEY }
+      });
+      const binData = await binRes.json();
+      const videos = binData.record.videos || [];
+      videos.unshift(videoBaru);
+
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY
+        },
+        body: JSON.stringify({ videos })
+      });
+
+      status.textContent = "✅ Video berhasil diunggah!";
+      document.getElementById("judulVideo").value = "";
+      document.getElementById("videoFile").value = "";
+      tutupUpload();
+      loadVideos();
+    }
+
+    async function loadVideos() {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { "X-Master-Key": API_KEY }
+      });
+      const data = await res.json();
+      const videos = data.record.videos || [];
+      videosGlobal = videos;
+
+      const feed = document.getElementById("videoFeed");
+      feed.innerHTML = "";
+
+      videos.forEach((v, i) => {
+        const card = document.createElement("div");
+        card.className = "video-card";
+        card.innerHTML = `
+          <video src="${v.url}" controls onclick="tambahView(${i}, this)"></video>
+          <div class="view-count">👁️ ${v.views || 0} views</div>
+          <div class="comment-icon" onclick="bukaKomentar(${i})">💬</div>
+        `;
+        feed.appendChild(card);
+      });
+    }
+
+    async function tambahView(i, video) {
+      if (video.dataset.viewed === "true") return;
+      video.dataset.viewed = "true";
+
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { "X-Master-Key": API_KEY }
+      });
+      const data = await res.json();
+      const videos = data.record.videos;
+      videos[i].views = (videos[i].views || 0) + 1;
+
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY
+        },
+        body: JSON.stringify({ videos })
+      });
+
+      loadVideos();
+    }
+
+    loadVideos();
   </script>
 </body>
 </html>
