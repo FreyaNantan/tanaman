@@ -9,46 +9,15 @@
       margin: 0;
       padding: 0;
       font-family: sans-serif;
-      background: black;
+      background: #e0f0ff;
       overflow-x: hidden;
-    }
-
-    .form-upload {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin: 15px;
-      max-width: 600px;
-      margin: 20px auto;
-    }
-
-    .form-upload h2 {
-      margin-top: 0;
-    }
-
-    .form-upload input {
-      display: block;
-      margin-bottom: 10px;
-      padding: 10px;
-      width: 100%;
-      font-size: 16px;
-    }
-
-    .form-upload button {
-      padding: 10px 15px;
-      font-size: 16px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
     }
 
     .btn-scroll-upload {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: rgba(0,123,255,0.9);
+      background: #3399ff;
       color: white;
       border: none;
       padding: 12px;
@@ -72,23 +41,25 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: black;
+      background: #e0f0ff;
     }
 
     video {
       max-height: 100%;
       max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
-    .judul {
+    .judul-wrapper {
       position: absolute;
       top: 20px;
       left: 20px;
       color: white;
-      font-size: 18px;
       background: rgba(0,0,0,0.5);
       padding: 6px 10px;
       border-radius: 8px;
+      font-size: 14px;
     }
 
     .btn-komentar {
@@ -96,7 +67,7 @@
       top: 50%;
       right: 20px;
       transform: translateY(-50%);
-      background: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.9);
       border: none;
       padding: 12px;
       border-radius: 50%;
@@ -105,22 +76,19 @@
       z-index: 5;
     }
 
-    .overlay {
+    .overlay, .overlay-upload {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: white;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
       z-index: 1000;
       display: none;
-      flex-direction: column;
-      padding: 20px;
+      justify-content: center;
+      align-items: center;
     }
 
-    .overlay .close-btn {
+    .overlay .close-btn, .overlay-upload .close-btn {
       position: absolute;
-      top: 10px;
+      top: 15px;
       right: 15px;
       background: red;
       color: white;
@@ -130,11 +98,31 @@
       cursor: pointer;
     }
 
-    .overlay input {
+    .form-upload, .overlay .konten {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .form-upload input {
+      display: block;
+      margin-bottom: 10px;
       padding: 10px;
       width: 100%;
-      margin-bottom: 10px;
       font-size: 16px;
+    }
+
+    .form-upload button {
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
     .komentar-list {
@@ -153,16 +141,19 @@
 </head>
 <body>
 
-<!-- Tombol upload scroll ke form -->
-<button type="button" class="btn-scroll-upload" onclick="scrollKeUpload()">⏫</button>
+<!-- Tombol Upload -->
+<button type="button" class="btn-scroll-upload" onclick="bukaUpload()">⏫</button>
 
-<!-- Form Upload -->
-<div id="uploadSection" class="form-upload">
-  <h2>Upload Video Penanaman</h2>
-  <input type="text" id="judulVideo" placeholder="Judul Video" required />
-  <input type="file" id="videoFile" accept="video/*" required />
-  <button onclick="unggahVideo()">Unggah</button>
-  <p id="statusUpload"></p>
+<!-- Popup Upload -->
+<div class="overlay-upload" id="uploadOverlay">
+  <div class="form-upload">
+    <button class="close-btn" onclick="tutupUpload()">✖</button>
+    <h2>Upload Video Penanaman</h2>
+    <input type="text" id="judulVideo" placeholder="Judul Video" required />
+    <input type="file" id="videoFile" accept="video/*" required />
+    <button onclick="unggahVideo()">Unggah</button>
+    <p id="statusUpload"></p>
+  </div>
 </div>
 
 <!-- Feed Video -->
@@ -170,12 +161,14 @@
 
 <!-- Overlay Komentar -->
 <div class="overlay" id="komentarOverlay">
-  <button class="close-btn" onclick="tutupKomentar()">✖ Tutup</button>
-  <h2>Komentar</h2>
-  <input type="text" id="namaKomentar" placeholder="Nama Anda">
-  <input type="text" id="pesanKomentar" placeholder="Tulis komentar...">
-  <button onclick="kirimKomentar()">💬 Kirim</button>
-  <div class="komentar-list" id="listKomentar"></div>
+  <div class="konten">
+    <button class="close-btn" onclick="tutupKomentar()">✖</button>
+    <h2>Komentar</h2>
+    <input type="text" id="namaKomentar" placeholder="Nama Anda">
+    <input type="text" id="pesanKomentar" placeholder="Tulis komentar...">
+    <button onclick="kirimKomentar()">💬 Kirim</button>
+    <div class="komentar-list" id="listKomentar"></div>
+  </div>
 </div>
 
 <script>
@@ -184,8 +177,15 @@
   let videoData = [];
   let indexKomentarAktif = null;
 
-  function scrollKeUpload() {
-    document.getElementById("uploadSection").scrollIntoView({ behavior: "smooth" });
+  function bukaUpload() {
+    document.getElementById("uploadOverlay").style.display = "flex";
+  }
+
+  function tutupUpload() {
+    document.getElementById("uploadOverlay").style.display = "none";
+    document.getElementById("judulVideo").value = "";
+    document.getElementById("videoFile").value = "";
+    document.getElementById("statusUpload").textContent = "";
   }
 
   async function loadVideos() {
@@ -202,11 +202,39 @@
       const card = document.createElement("div");
       card.className = "video-card";
       card.innerHTML = `
-        <div class="judul">${v.judul || "Tanpa Judul"}</div>
+        <div class="judul-wrapper">
+          <div><strong>${v.judul || "Tanpa Judul"}</strong></div>
+          <div>👁️ ${v.views || 0}</div>
+        </div>
         <video src="${v.url}" controls></video>
         <button class="btn-komentar" onclick="bukaKomentar(${i})">💬</button>
       `;
       feed.appendChild(card);
+
+      // Tambahkan view sekali
+      tambahViewSekali(i);
+    });
+  }
+
+  async function tambahViewSekali(index) {
+    const key = "viewed_video_" + index;
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, "1");
+
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { "X-Master-Key": API_KEY }
+    });
+    const data = await res.json();
+    const videos = data.record.videos || [];
+    videos[index].views = (videos[index].views || 0) + 1;
+
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": API_KEY
+      },
+      body: JSON.stringify({ videos })
     });
   }
 
@@ -296,8 +324,7 @@
       });
 
       status.textContent = "✅ Berhasil diunggah!";
-      document.getElementById("judulVideo").value = "";
-      document.getElementById("videoFile").value = "";
+      tutupUpload();
       loadVideos();
     } catch (err) {
       console.error(err);
