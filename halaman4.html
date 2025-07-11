@@ -2,82 +2,68 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <title>Video Pendek Penanaman</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Pendek</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
       margin: 0;
-      padding: 0;
-    }
-    h1 {
-      text-align: center;
-      background-color: #4CAF50;
-      color: white;
       padding: 10px;
-      margin: 0;
     }
-    .upload {
+
+    header {
+      background-color: #3399ff;
+      color: white;
       padding: 20px;
       text-align: center;
+    }
+
+    .upload-section, .video-feed {
+      max-width: 500px;
+      margin: 20px auto;
       background: white;
+      padding: 20px;
+      border-radius: 8px;
     }
-    .upload input[type="file"] {
-      margin: 10px 0;
-    }
-    .video-feed {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px;
-    }
-    .video-container {
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 20px;
-      background: white;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+
     video {
       width: 100%;
       border-radius: 10px;
+      margin-bottom: 10px;
     }
-    .views, .comment-box {
-      font-size: 14px;
-      margin-top: 5px;
-    }
-    .comment-box input {
-      width: 90%;
-      padding: 5px;
-      margin-top: 5px;
-    }
-    .comment-box button {
-      padding: 5px 10px;
+
+    input[type="file"], input[type="text"], button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
 
-<h1>🎬 Video Pendek</h1>
+<header>
+  <h1>🌱 Video Pendek Penanaman</h1>
+</header>
 
-<div class="upload">
+<div class="upload-section">
+  <h3>Upload Video Baru</h3>
   <input type="file" id="videoInput" accept="video/*">
-  <input type="text" id="videoDesc" placeholder="Deskripsi singkat...">
-  <button onclick="uploadVideo()">Upload Video</button>
+  <input type="text" id="caption" placeholder="Tulis caption...">
+  <button onclick="uploadVideo()">Unggah</button>
 </div>
 
 <div class="video-feed" id="videoFeed">
-  <!-- Video akan ditampilkan di sini -->
+  <h3>Feed Video</h3>
 </div>
 
 <!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import { getDatabase, ref, push, set, onValue, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+<!-- Firebase Config -->
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyAR7Gck3aerU7XErxetQp3KgsMYFGqn5Zo",
     authDomain: "grup-obrolan-penanaman.firebaseapp.com",
@@ -87,94 +73,55 @@
     messagingSenderId: "822090541791",
     appId: "1:822090541791:web:943a33b5ea1ecb97f1576a"
   };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const videoRef = db.ref("video");
 </script>
 
-<!-- Upload & Feed Logic -->
+<!-- Upload ke Cloudinary -->
 <script>
-  const cloudName = "dtl4uiytm";
-  const uploadPreset = "unsigned_preset"; // ganti jika kamu pakai preset lain
-
-  async function uploadVideo() {
+  function uploadVideo() {
     const file = document.getElementById("videoInput").files[0];
-    const desc = document.getElementById("videoDesc").value;
+    const caption = document.getElementById("caption").value;
 
-    if (!file) return alert("Pilih video dulu!");
-    if (!desc) return alert("Isi deskripsi!");
+    if (!file) return alert("Pilih video dulu");
+    if (!caption.trim()) return alert("Tulis caption");
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
+    formData.append("upload_preset", "UPLOAD_PRESET_KAMU"); // Ganti di sini
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+    fetch("https://api.cloudinary.com/v1_1/dtl4uiytm/video/upload", {
       method: "POST",
       body: formData
-    });
+    })
+    .then(res => res.json())
+    .then(data => {
+      const videoUrl = data.secure_url;
+      const time = new Date().toLocaleString("id-ID");
 
-    const data = await res.json();
-
-    const dbRef = firebase.database().ref("videos");
-    const newRef = dbRef.push();
-    newRef.set({
-      url: data.secure_url,
-      desc: desc,
-      views: 0,
-      comments: []
-    });
-
-    document.getElementById("videoInput").value = "";
-    document.getElementById("videoDesc").value = "";
+      videoRef.push({ videoUrl, caption, time, views: 0 });
+      document.getElementById("caption").value = "";
+      alert("✅ Video berhasil diunggah!");
+    })
+    .catch(err => alert("Gagal upload ke Cloudinary: " + err));
   }
 
-  function loadFeed() {
-    const feed = document.getElementById("videoFeed");
-    const dbRef = firebase.database().ref("videos");
-    dbRef.on("value", snapshot => {
-      feed.innerHTML = "";
-      const data = snapshot.val();
-      if (!data) return;
+  // Tampilkan feed video
+  videoRef.on("child_added", snap => {
+    const vid = snap.val();
+    const el = document.createElement("div");
+    el.innerHTML = `
+      <video controls src="${vid.videoUrl}"></video>
+      <p>${vid.caption}</p>
+      <small>👁️ ${vid.views || 0} views • 🕒 ${vid.time}</small>
+      <hr>
+    `;
+    document.getElementById("videoFeed").prepend(el);
 
-      const keys = Object.keys(data).reverse(); // terbaru dulu
-      keys.forEach(key => {
-        const video = data[key];
-        const div = document.createElement("div");
-        div.className = "video-container";
-        div.innerHTML = `
-          <video src="${video.url}" controls autoplay muted loop onplay="addView('${key}')"></video>
-          <div class="views">👁️ ${video.views || 0} views</div>
-          <div>${video.desc}</div>
-          <div class="comment-box">
-            <input type="text" placeholder="Komentar..." id="comment-${key}">
-            <button onclick="sendComment('${key}')">Kirim</button>
-          </div>
-          <ul id="comments-${key}">${(video.comments || []).map(c => `<li>${c}</li>`).join("")}</ul>
-        `;
-        feed.appendChild(div);
-      });
-    });
-  }
-
-  function addView(key) {
-    const ref = firebase.database().ref("videos/" + key + "/views");
-    ref.transaction(views => (views || 0) + 1);
-  }
-
-  function sendComment(key) {
-    const input = document.getElementById("comment-" + key);
-    const text = input.value;
-    if (!text) return;
-    const commentsRef = firebase.database().ref("videos/" + key + "/comments");
-    commentsRef.once("value", snapshot => {
-      const comments = snapshot.val() || [];
-      comments.push(text);
-      commentsRef.set(comments);
-      input.value = "";
-    });
-  }
-
-  window.onload = loadFeed;
+    // Tambah 1 view saat video muncul
+    snap.ref.update({ views: (vid.views || 0) + 1 });
+  });
 </script>
 
 </body>
