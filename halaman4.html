@@ -89,7 +89,7 @@
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "UPLOAD_PRESET_KAMU"); // Ganti di sini
+    formData.append("upload_preset", "penanaman_preset"); // Ganti di sini
 
     fetch("https://api.cloudinary.com/v1_1/dtl4uiytm/video/upload", {
       method: "POST",
