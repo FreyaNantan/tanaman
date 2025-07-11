@@ -8,16 +8,61 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
       font-family: sans-serif;
-      overflow: hidden;
       background: black;
+      overflow-x: hidden;
+    }
+
+    .form-upload {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 15px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+
+    .form-upload h2 {
+      margin-top: 0;
+    }
+
+    .form-upload input {
+      display: block;
+      margin-bottom: 10px;
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .form-upload button {
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-scroll-upload {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,123,255,0.9);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 999;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
     }
 
     .video-feed {
+      scroll-snap-type: y mandatory;
       height: 100vh;
       overflow-y: scroll;
-      scroll-snap-type: y mandatory;
     }
 
     .video-card {
@@ -60,21 +105,6 @@
       z-index: 5;
     }
 
-    .btn-upload {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(0,123,255,0.9);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 50%;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 999;
-      box-shadow: 0 0 8px rgba(0,0,0,0.3);
-    }
-
     .overlay {
       position: fixed;
       top: 0;
@@ -86,10 +116,6 @@
       display: none;
       flex-direction: column;
       padding: 20px;
-    }
-
-    .overlay h2 {
-      margin-top: 0;
     }
 
     .overlay .close-btn {
@@ -127,11 +153,20 @@
 </head>
 <body>
 
-<!-- Tombol Upload -->
-<button class="btn-upload" onclick="alert('Form upload akan ditambahkan nanti')">⏫</button>
+<!-- Tombol upload yang scroll ke form -->
+<button class="btn-scroll-upload" onclick="scrollKeUpload()">⏫</button>
+
+<!-- Form Upload -->
+<div id="uploadSection" class="form-upload">
+  <h2>Upload Video Penanaman</h2>
+  <input type="text" id="judulVideo" placeholder="Judul Video" required />
+  <input type="file" id="videoFile" accept="video/*" required />
+  <button onclick="unggahVideo()">Unggah</button>
+  <p id="statusUpload"></p>
+</div>
 
 <!-- Feed Video -->
-<div class="video-feed" id="videoFeed">Loading...</div>
+<div class="video-feed" id="videoFeed">Memuat video...</div>
 
 <!-- Overlay Komentar -->
 <div class="overlay" id="komentarOverlay">
@@ -148,6 +183,10 @@
   const API_KEY = "$2a$10$gAEzlF7LNkB9ykiLrrl3bODG6YkiqyLkFOPe9kTm.ZD7Gt2KmdgbK";
   let videoData = [];
   let indexKomentarAktif = null;
+
+  function scrollKeUpload() {
+    document.getElementById("uploadSection").scrollIntoView({ behavior: "smooth" });
+  }
 
   async function loadVideos() {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
@@ -176,7 +215,6 @@
     const overlay = document.getElementById("komentarOverlay");
     const list = document.getElementById("listKomentar");
     const data = videoData[index].comments || [];
-
     list.innerHTML = data.map(k => `<div class="komentar-item">💬 <b>${k.nama}</b>: ${k.pesan}</div>`).join("");
     overlay.style.display = "flex";
   }
@@ -210,10 +248,61 @@
       body: JSON.stringify({ videos })
     });
 
-    // Tambah komentar langsung di layar
     const list = document.getElementById("listKomentar");
     list.innerHTML += `<div class="komentar-item">💬 <b>${nama}</b>: ${pesan}</div>`;
     document.getElementById("pesanKomentar").value = "";
+  }
+
+  async function unggahVideo() {
+    const judul = document.getElementById("judulVideo").value.trim();
+    const file = document.getElementById("videoFile").files[0];
+    const status = document.getElementById("statusUpload");
+    if (!judul || !file) return alert("Isi judul dan pilih video!");
+
+    status.textContent = "⏳ Mengunggah...";
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "penanaman_preset");
+    formData.append("folder", "video-penanaman");
+
+    try {
+      const resCloud = await fetch("https://api.cloudinary.com/v1_1/dtl4uiytm/video/upload", {
+        method: "POST",
+        body: formData
+      });
+      const cloudData = await resCloud.json();
+
+      const resBin = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { "X-Master-Key": API_KEY }
+      });
+      const binData = await resBin.json();
+      const videos = binData.record.videos || [];
+
+      videos.unshift({
+        url: cloudData.secure_url,
+        judul,
+        views: 0,
+        comments: []
+      });
+
+      await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY
+        },
+        body: JSON.stringify({ videos })
+      });
+
+      status.textContent = "✅ Berhasil diunggah!";
+      document.getElementById("judulVideo").value = "";
+      document.getElementById("videoFile").value = "";
+      loadVideos();
+    } catch (err) {
+      console.error(err);
+      status.textContent = "❌ Gagal mengunggah.";
+    }
   }
 
   loadVideos();
