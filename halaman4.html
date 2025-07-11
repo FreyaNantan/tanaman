@@ -39,8 +39,8 @@
 
     .video-card video {
       width: 100%;
-      height: 500px;
-      object-fit: cover;
+      height: auto;
+      object-fit: contain;
       display: block;
       background-color: #3399ff;
     }
@@ -272,32 +272,27 @@
         `;
         videoFeed.appendChild(div);
 
-        // Hitung view hanya sekali saat >3 detik
         const videoElement = div.querySelector("video");
-        let watchedKey = `watched_${i}`;
-        let watched = false;
+        const watchedKey = `viewed_${v.url}`;
 
-        videoElement.addEventListener("timeupdate", async () => {
-          if (!watched && videoElement.currentTime > 3) {
-            watched = true;
-            if (!localStorage.getItem(watchedKey)) {
-              localStorage.setItem(watchedKey, "1");
-              const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { "X-Master-Key": API_KEY }
-              });
-              const data = await res.json();
-              const videos = data.record.videos;
-              videos[i].views++;
-              await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Master-Key": API_KEY
-                },
-                body: JSON.stringify({ videos })
-              });
-              loadVideos();
-            }
+        videoElement.addEventListener("play", async () => {
+          if (!localStorage.getItem(watchedKey)) {
+            localStorage.setItem(watchedKey, "1");
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+              headers: { "X-Master-Key": API_KEY }
+            });
+            const data = await res.json();
+            const videos = data.record.videos;
+            videos[i].views++;
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Master-Key": API_KEY
+              },
+              body: JSON.stringify({ videos })
+            });
+            loadVideos();
           }
         });
       });
