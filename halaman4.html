@@ -14,20 +14,17 @@
       height: 100%;
       overflow: hidden;
     }
-
     .snap-container {
       height: 100vh;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
       -webkit-overflow-scrolling: touch;
     }
-
     .video-feed {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
     .video-card {
       scroll-snap-align: start;
       width: 100vw;
@@ -35,18 +32,15 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
       position: relative;
       background: #3399ff;
     }
-
     .video-card video {
       width: 100%;
       height: 100%;
       object-fit: contain;
       background: #3399ff;
     }
-
     .view-count {
       position: absolute;
       top: 10px;
@@ -57,7 +51,6 @@
       border-radius: 6px;
       font-size: 14px;
     }
-
     .btn-scroll-upload {
       position: fixed;
       top: 20px;
@@ -73,7 +66,6 @@
       cursor: pointer;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
-
     .overlay-upload {
       position: fixed;
       top: 0; left: 0;
@@ -84,35 +76,22 @@
       justify-content: center;
       z-index: 1000;
     }
-
     .form-upload {
       background: white;
       padding: 20px;
       border-radius: 12px;
       width: 90%;
       max-width: 400px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
       text-align: center;
     }
-
-    .form-upload input {
+    .form-upload input, .form-upload button {
       width: 100%;
-      padding: 10px;
       margin: 10px 0;
-      border-radius: 8px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
       border: 1px solid #ccc;
     }
-
-    .form-upload button {
-      padding: 10px;
-      width: 100%;
-      background: #3399ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
     .close-btn {
       position: absolute;
       top: 10px;
@@ -126,7 +105,7 @@
 </head>
 <body>
   <button class="btn-scroll-upload" onclick="bukaUpload()">⏫</button>
-
+  
   <div class="overlay-upload" id="uploadOverlay">
     <div class="form-upload">
       <button class="close-btn" onclick="tutupUpload()">✖</button>
@@ -137,11 +116,11 @@
       <p id="statusUpload"></p>
     </div>
   </div>
-
+  
   <div class="snap-container">
     <div class="video-feed" id="videoFeed"></div>
   </div>
-
+  
   <script>
     const CLOUD_NAME = "dtl4uiytm";
     const UPLOAD_PRESET = "penanaman_preset";
@@ -155,7 +134,6 @@
     function bukaUpload() {
       uploadOverlay.style.display = "flex";
     }
-
     function tutupUpload() {
       uploadOverlay.style.display = "none";
       document.getElementById("videoFile").value = "";
@@ -167,35 +145,29 @@
       const file = document.getElementById("videoFile").files[0];
       const title = document.getElementById("judulVideo").value.trim();
       if (!file || !title) return alert("Judul dan file video wajib diisi.");
-
       statusUpload.textContent = "⏳ Mengunggah video...";
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", UPLOAD_PRESET);
       formData.append("folder", "video-penanaman");
-
       try {
         const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, {
           method: "POST",
-          body: formData,
+          body: formData
         });
         const uploadData = await uploadRes.json();
-
         const videoBaru = {
           url: uploadData.secure_url,
           title: title,
           views: 0,
           comments: []
         };
-
         const getRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
           headers: { "X-Master-Key": API_KEY }
         });
         const data = await getRes.json();
         const videos = data.record.videos || [];
-
         videos.unshift(videoBaru);
-
         await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
           method: "PUT",
           headers: {
@@ -204,7 +176,6 @@
           },
           body: JSON.stringify({ videos })
         });
-
         statusUpload.textContent = "✅ Berhasil diunggah!";
         setTimeout(() => {
           tutupUpload();
@@ -223,21 +194,16 @@
         });
         const data = await res.json();
         const videos = data.record.videos || [];
-
         videoFeed.innerHTML = "";
-        videos.forEach((video, index) => {
+        videos.forEach((video, idx) => {
           const card = document.createElement("div");
           card.className = "video-card";
-
-          card.innerHTML = `
-            <video id="vid-${index}" src="${video.url}" playsinline controls></video>
-            <div class="view-count" id="view-${index}">👁️ ${video.views || 0} views</div>
-          `;
-
+          card.innerHTML = \`
+            <video id="vid-\${idx}" src="\${video.url}" playsinline controls></video>
+            <div class="view-count" id="view-\${idx}">👁️ \${video.views || 0} views</div>
+          \`;
           videoFeed.appendChild(card);
-
-          const vid = document.getElementById(`vid-${index}`);
-          vid.addEventListener("play", () => tambahView(index));
+          document.getElementById(`vid-${idx}`).addEventListener("play", () => tambahView(idx));
         });
       } catch (err) {
         videoFeed.innerHTML = "<p style='color:white'>Gagal memuat video.</p>";
@@ -245,19 +211,16 @@
       }
     }
 
-    async function tambahView(index) {
-      const key = "viewed_" + index;
+    async function tambahView(idx) {
+      const key = "viewed_" + idx;
       if (localStorage.getItem(key)) return;
-
       const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
         headers: { "X-Master-Key": API_KEY }
       });
       const data = await res.json();
       const videos = data.record.videos;
-
-      videos[index].views = (videos[index].views || 0) + 1;
+      videos[idx].views = (videos[idx].views || 0) + 1;
       localStorage.setItem(key, "1");
-
       await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
         method: "PUT",
         headers: {
@@ -266,8 +229,7 @@
         },
         body: JSON.stringify({ videos })
       });
-
-      document.getElementById(`view-${index}`).innerText = `👁️ ${videos[index].views} views`;
+      document.getElementById(`view-${idx}`).innerText = \`👁️ \${videos[idx].views} views\`;
     }
 
     loadVideos();
